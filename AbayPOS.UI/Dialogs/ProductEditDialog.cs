@@ -28,10 +28,13 @@ public sealed class ProductEditDialog : DialogForm
     {
         Product = product;
         Text = product.Id == 0 ? "AbayPOS – Add product" : "AbayPOS – Edit product";
-        AutoScroll = true;
-        MinimumSize = new Size(Theme.Scale(680), Theme.Scale(520));
-        ClientSize = new Size(Theme.Scale(760), Theme.Scale(680));
-        var surface = new GlassPanel { Dock = DockStyle.Fill, Padding = new Padding(Theme.Scale(24)) };
+        AutoScroll = false;
+        AutoSize = true;
+        AutoSizeMode = AutoSizeMode.GrowAndShrink;
+        MinimumSize = new Size(Theme.Scale(860), Theme.Scale(520));
+        var screenHeight = Screen.PrimaryScreen?.WorkingArea.Height ?? 900;
+        MaximumSize = new Size(Theme.Scale(980), Math.Max(Theme.Scale(640), (int)(screenHeight * 0.85)));
+        var surface = new GlassPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Padding = new Padding(Theme.Scale(24)) };
         var grid = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, BackColor = Theme.Base };
         var row = 0;
         void Field(string caption, Control input)
@@ -93,7 +96,7 @@ public sealed class ProductEditDialog : DialogForm
         grid.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         grid.Controls.Add(buttons, 0, row);
 
-        var shell = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, BackColor = Theme.Base };
+        var shell = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, ColumnCount = 2, BackColor = Theme.Base };
         shell.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, Theme.Scale(220)));
         shell.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         shell.Controls.Add(BuildPhotos(product), 0, 0);
@@ -138,7 +141,8 @@ public sealed class ProductEditDialog : DialogForm
         };
         _photo.Size = new Size(Theme.Scale(200), Theme.Scale(200));
         _photo.Emoji = product.Emoji;
-        _photo.AllowDrop = true;
+        if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
+            _photo.AllowDrop = true;
         _photo.DragEnter += (_, e) =>
         {
             e.Effect = e.Data?.GetDataPresent(DataFormats.FileDrop) == true ? DragDropEffects.Copy : DragDropEffects.None;

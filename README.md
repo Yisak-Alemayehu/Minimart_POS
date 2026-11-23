@@ -60,11 +60,14 @@ The shell uses the standard Windows caption, so snap, resize, and maximize behav
 | Screen | What you see |
 |---|---|
 | Sign in | Centered card: username, password with show/hide, Sign in. Enter submits. Caps Lock is called out on the password field. |
-| Register | Icon rail (Sales, History, Log out), product tiles, and a 420px cart. The status strip lists the shortcuts. |
+| Register | Icon rail (Sales, History, Log out), product tiles, and a 420px cart. The status strip lists the shortcuts. Money is measured and never clipped; only product names ellipsize. |
 | Payment | Cash or mobile money, quick amounts, live change. Confirm stays off until the amount covers the total. |
 | Manager | 240px sidebar and list pages on one shared dark grid. |
+| Product photo | Add or edit a product, then Upload, paste, or drop a picture. Crop is a square, saved as a 512×512 JPEG. |
 
-Screenshots of the running screens are in `docs/screenshots/` when captured on a desktop session.
+Screenshots of the running screens are in `docs/screenshots/`.
+
+Product photos are files, not blobs. The database stores only the file name in `Products.ImagePath`. The files live in `%LocalAppData%\AbayPOS\images\products\` as `{productId}_{guid}.jpg`. Replacing or removing a photo deletes the previous file. The register, the cart, and the products grid read those files through `IProductImageStore` and keep small decoded copies in memory while you scroll.
 
 ## Keyboard shortcuts (cashier)
 
@@ -87,4 +90,4 @@ Screenshots of the running screens are in `docs/screenshots/` when captured on a
 
 ## Tests
 
-`AbayPOS.Tests` covers password hashing and lockout, cart totals and the 10% cashier discount cap, and `CompleteSaleAsync` rolling back when stock is insufficient.
+`AbayPOS.Tests` covers password hashing and lockout, cart totals and the 10% cashier discount cap, `CompleteSaleAsync` rolling back when stock is insufficient, and product photo save, replace, and delete.

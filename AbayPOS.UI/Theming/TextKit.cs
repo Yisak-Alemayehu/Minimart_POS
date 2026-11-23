@@ -39,6 +39,13 @@ public static class TextKit
         TextRenderer.DrawText(graphics, text ?? string.Empty, font, bounds, color, CenterFlags);
     }
 
+    public static void DrawExact(Graphics graphics, string? text, Font font, Rectangle bounds, Color color)
+    {
+        TextRenderer.DrawText(graphics, text ?? string.Empty, font, bounds, color,
+            TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix | TextFormatFlags.SingleLine |
+            TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
+    }
+
     /// <summary>Draws a money string in full. Call <see cref="FitFont"/> first when the slot is narrow.</summary>
     public static void DrawMoney(Graphics graphics, string text, Font font, Rectangle bounds, Color color)
     {

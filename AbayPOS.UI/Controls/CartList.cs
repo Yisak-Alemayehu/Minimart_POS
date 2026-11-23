@@ -164,12 +164,14 @@ public sealed class CartList : Control
 
         DrawThumb(g, line, slots.Thumb);
         TextKit.DrawFit(g, line.ProductName, Theme.Font(12, FontStyle.Bold), slots.Name, Theme.Text, wrap: true);
-        TextKit.DrawFit(g, Money.Format(line.UnitPrice) + " each", Theme.Font(11), slots.Unit, Theme.TextSecondary);
+        var unitText = Money.Format(line.UnitPrice) + " each";
+        var unitFont = TextKit.FitFont(g, unitText, Theme.Font(11), Math.Max(1, slots.Unit.Width - Theme.Scale(6)), 8f);
+        TextKit.DrawExact(g, unitText, unitFont, slots.Unit, Theme.TextSecondary);
         DrawStepper(g, slots.Minus, "−");
         TextKit.DrawCenter(g, line.Qty.ToString(), Theme.Font(11, FontStyle.Bold), slots.Qty, Theme.Text);
         DrawStepper(g, slots.Plus, "+");
         var totalText = Money.Format(line.LineTotal);
-        var totalFont = TextKit.FitFont(g, totalText, Theme.Font(12, FontStyle.Bold), slots.Total.Width, 10f);
+        var totalFont = TextKit.FitFont(g, totalText, Theme.Font(12, FontStyle.Bold), Math.Max(1, slots.Total.Width - Theme.Scale(6)), 8f);
         TextKit.DrawMoney(g, totalText, totalFont, slots.Total, Theme.Accent);
         DrawStepper(g, slots.Remove, "×");
     }
@@ -181,15 +183,21 @@ public sealed class CartList : Control
         var pad = Theme.Scale(8);
         var button = Theme.Scale(28);
         var qtyFont = Theme.Font(11, FontStyle.Bold);
-        var qtyWidth = Math.Max(Theme.Scale(28), TextKit.Measure(g, "9999", qtyFont).Width + pad);
-        var money = TextKit.FitFont(g, "ETB 99,999.00", Theme.Font(12, FontStyle.Bold), Theme.Scale(140), 10f);
-        var moneyWidth = TextKit.Measure(g, Money.Format(line.LineTotal), money).Width + pad;
+        var qtyWidth = Math.Max(Theme.Scale(36), TextKit.Measure(g, "9999", qtyFont).Width + pad);
+        var thumbSize = Theme.Scale(40);
+        var reserved = pad + thumbSize + pad + button + qtyWidth + button + pad + button + pad + pad;
+        var nameFloor = Theme.Scale(120);
+        var moneyBudget = Math.Max(Theme.Scale(88), row.Width - reserved - nameFloor);
+        var moneyText = Money.Format(line.LineTotal);
+        var money = TextKit.FitFont(g, moneyText, Theme.Font(12, FontStyle.Bold), moneyBudget, 10f);
+        if (TextKit.Measure(g, moneyText, money).Width > moneyBudget)
+            money = TextKit.FitFont(g, moneyText, Theme.Font(12, FontStyle.Bold), moneyBudget, 8f);
+        var moneyWidth = TextKit.Measure(g, moneyText, money).Width + Theme.Scale(16);
         var remove = new Rectangle(row.Right - pad - button, row.Y + (row.Height - button) / 2, button, button);
         var total = new Rectangle(remove.Left - pad - moneyWidth, row.Y, moneyWidth, row.Height);
         var plus = new Rectangle(total.Left - pad - button, remove.Y, button, button);
         var qty = new Rectangle(plus.Left - qtyWidth, row.Y, qtyWidth, row.Height);
         var minus = new Rectangle(qty.Left - button, remove.Y, button, button);
-        var thumbSize = Theme.Scale(40);
         var thumb = new Rectangle(row.X + pad, row.Y + (row.Height - thumbSize) / 2, thumbSize, thumbSize);
         var nameX = thumb.Right + pad;
         var name = new Rectangle(nameX, row.Y + Theme.Scale(4), Math.Max(Theme.Scale(40), minus.Left - pad - nameX), row.Height / 2);
