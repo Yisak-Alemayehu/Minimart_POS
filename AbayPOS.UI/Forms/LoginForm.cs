@@ -244,33 +244,4 @@ public sealed class LoginForm : ThemedForm
         }
     }
 
-    private sealed class BrandPane : Control
-    {
-        public BrandPane()
-        {
-            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
-            BackColor = Theme.Brand;
-        }
-
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            if (Width <= 1 || Height <= 1)
-                return;
-            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            using var brush = new LinearGradientBrush(ClientRectangle, Theme.Brand, Theme.Accent, 135f);
-            e.Graphics.FillRectangle(brush, ClientRectangle);
-            var white = Theme.Brush(Color.White);
-            var soft = Theme.Brush(Color.FromArgb(230, 236, 255));
-            var mark = Theme.IconFont(42);
-            var title = Theme.Font(36, FontStyle.Bold);
-            var sub = Theme.Font(16);
-            var tag = Theme.Font(13, FontStyle.Bold);
-            var center = Theme.CenterFormat;
-            var y = Height * 0.28f;
-            e.Graphics.DrawString("\uE7BF", mark, white, new RectangleF(0, y, Width, 70), center);
-            e.Graphics.DrawString("AbayPOS", title, white, new RectangleF(0, y + 78, Width, 52), center);
-            e.Graphics.DrawString("Smart Retail Solution", sub, soft, new RectangleF(40, y + 136, Width - 80, 32), center);
-            e.Graphics.DrawString("Fast   ·   Simple   ·   Reliable", tag, white, new RectangleF(40, y + 188, Width - 80, 28), center);
-        }
-    }
 }

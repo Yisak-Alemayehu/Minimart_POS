@@ -1,6 +1,6 @@
 # AbayPOS (Minimart POS)
 
-C# Windows Forms group project for **Windows Programming (COSC-4021)**, Unity University. Dark frosted-glass register for a neighbourhood minimart. SQLite today; the data layer is swappable so MySQL 8.4 can replace it later without touching UI or Business code.
+C# Windows Forms group project for **Windows Programming (COSC-4021)**, Unity University. Dark retail register for a neighbourhood minimart, with the native Windows title bar. SQLite today; the data layer is swappable so MySQL 8.4 can replace it later without touching UI or Business code.
 
 ## Group members
 
@@ -52,6 +52,19 @@ flowchart LR
 `Program.cs` is the composition root. It builds `AppHost`, which constructs the SQLite connection factory, unit of work, hasher, and services. Swap the factory there to change databases.
 
 Money is `decimal` ETB in Domain/Business and **integer cents** in SQLite.
+
+## UI
+
+The shell uses the standard Windows caption, so snap, resize, and maximize behave like any other desktop app. Surfaces are solid colors from `Palette.Dark` (switch `Theme.Colors` to `Palette.Light` for the light set). There is no acrylic blur.
+
+| Screen | What you see |
+|---|---|
+| Sign in | Centered card: username, password with show/hide, Sign in. Enter submits. Caps Lock is called out on the password field. |
+| Register | Icon rail (Sales, History, Log out), product tiles, and a 420px cart. The status strip lists the shortcuts. |
+| Payment | Cash or mobile money, quick amounts, live change. Confirm stays off until the amount covers the total. |
+| Manager | 240px sidebar and list pages on one shared dark grid. |
+
+Screenshots of the running screens are in `docs/screenshots/` when captured on a desktop session.
 
 ## Keyboard shortcuts (cashier)
 
