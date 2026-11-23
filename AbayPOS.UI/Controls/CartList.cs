@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using AbayPOS.Domain;
 using AbayPOS.Domain.Models;
+using AbayPOS.UI.Imaging;
 using AbayPOS.UI.Theming;
 
 namespace AbayPOS.UI.Controls;
@@ -17,6 +18,9 @@ public sealed class CartList : Control
     private int _selected;
     private int _flashIndex = -1;
     private readonly System.Windows.Forms.Timer _flash = new() { Interval = 400 };
+
+    [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
+    public Func<int, string?>? ImageName { get; set; }
 
     public CartList()
     {
@@ -158,6 +162,7 @@ public sealed class CartList : Control
         if (index == _flashIndex || index == _selected)
             g.FillRectangle(Theme.Brush(Theme.Selection), row);
 
+        DrawThumb(g, line, slots.Thumb);
         TextKit.DrawFit(g, line.ProductName, Theme.Font(12, FontStyle.Bold), slots.Name, Theme.Text, wrap: true);
         TextKit.DrawFit(g, Money.Format(line.UnitPrice) + " each", Theme.Font(11), slots.Unit, Theme.TextSecondary);
         DrawStepper(g, slots.Minus, "−");
@@ -169,7 +174,7 @@ public sealed class CartList : Control
         DrawStepper(g, slots.Remove, "×");
     }
 
-    private readonly record struct RowSlots(Rectangle Name, Rectangle Unit, Rectangle Minus, Rectangle Qty, Rectangle Plus, Rectangle Total, Rectangle Remove);
+    private readonly record struct RowSlots(Rectangle Thumb, Rectangle Name, Rectangle Unit, Rectangle Minus, Rectangle Qty, Rectangle Plus, Rectangle Total, Rectangle Remove);
 
     private RowSlots Slots(Graphics g, CartLine line, Rectangle row)
     {
@@ -184,9 +189,35 @@ public sealed class CartList : Control
         var plus = new Rectangle(total.Left - pad - button, remove.Y, button, button);
         var qty = new Rectangle(plus.Left - qtyWidth, row.Y, qtyWidth, row.Height);
         var minus = new Rectangle(qty.Left - button, remove.Y, button, button);
-        var name = new Rectangle(row.X + pad, row.Y + Theme.Scale(4), Math.Max(Theme.Scale(40), minus.Left - pad - row.X - pad), row.Height / 2);
+        var thumbSize = Theme.Scale(40);
+        var thumb = new Rectangle(row.X + pad, row.Y + (row.Height - thumbSize) / 2, thumbSize, thumbSize);
+        var nameX = thumb.Right + pad;
+        var name = new Rectangle(nameX, row.Y + Theme.Scale(4), Math.Max(Theme.Scale(40), minus.Left - pad - nameX), row.Height / 2);
         var unit = new Rectangle(name.X, name.Bottom, name.Width, row.Bottom - name.Bottom - Theme.Scale(4));
-        return new RowSlots(name, unit, minus, qty, plus, total, remove);
+        return new RowSlots(thumb, name, unit, minus, qty, plus, total, remove);
+    }
+
+    private void DrawThumb(Graphics g, CartLine line, Rectangle bounds)
+    {
+        var relative = ImageName?.Invoke(line.ProductId);
+        var size = Math.Max(bounds.Width, bounds.Height);
+        var photo = string.IsNullOrWhiteSpace(relative) ? null : ThumbnailCache.Shared.Get(relative, size);
+        if (photo is null && !string.IsNullOrWhiteSpace(relative))
+            ThumbnailCache.Shared.Request(this, relative, size, Invalidate);
+        var state = g.Save();
+        using var clip = Gfx.Round(bounds, Theme.Scale(8));
+        g.SetClip(clip);
+        if (photo is not null)
+            ProductImageCodec.DrawCover(g, photo, bounds);
+        else
+        {
+            g.FillRectangle(Theme.Brush(Theme.NavRaised), bounds);
+            var emoji = string.IsNullOrWhiteSpace(line.Emoji) ? "\uE7BF" : line.Emoji;
+            var font = string.IsNullOrWhiteSpace(line.Emoji) ? Theme.IconFont(16) : Theme.Font(14);
+            TextKit.DrawCenter(g, emoji, font, bounds, Theme.Text);
+        }
+
+        g.Restore(state);
     }
 
     private static void DrawStepper(Graphics g, Rectangle rect, string glyph)

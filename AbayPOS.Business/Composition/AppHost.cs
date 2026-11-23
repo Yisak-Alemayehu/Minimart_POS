@@ -1,3 +1,4 @@
+using AbayPOS.Business.Imaging;
 using AbayPOS.Business.Logging;
 using AbayPOS.Business.Security;
 using AbayPOS.Business.Services;
@@ -20,6 +21,7 @@ public sealed class AppHost
         ISupplierService suppliers,
         IUserService users,
         IReportService reports,
+        IProductImageStore images,
         IAppLogger logger,
         string databasePath)
     {
@@ -30,6 +32,7 @@ public sealed class AppHost
         Suppliers = suppliers;
         Users = users;
         Reports = reports;
+        Images = images;
         Logger = logger;
         DatabasePath = databasePath;
     }
@@ -41,6 +44,7 @@ public sealed class AppHost
     public ISupplierService Suppliers { get; }
     public IUserService Users { get; }
     public IReportService Reports { get; }
+    public IProductImageStore Images { get; }
     public IAppLogger Logger { get; }
     public string DatabasePath { get; }
 
@@ -69,6 +73,7 @@ public sealed class AppHost
             new SupplierService(uowFactory),
             new UserService(uowFactory, hasher),
             new ReportService(uowFactory),
+            new FileProductImageStore(),
             logger,
             path);
     }

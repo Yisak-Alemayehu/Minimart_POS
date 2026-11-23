@@ -1,4 +1,5 @@
 using AbayPOS.Business.Composition;
+using AbayPOS.Business.Imaging;
 using AbayPOS.Business.Services;
 using AbayPOS.Domain.Logging;
 
@@ -21,6 +22,7 @@ public static class ServiceLocator
     public static ISupplierService Suppliers => Host.Suppliers;
     public static IUserService Users => Host.Users;
     public static IReportService Reports => Host.Reports;
+    public static IProductImageStore Images => Host.Images;
     public static IAppLogger Logger => Host.Logger;
 
     public static void Configure(AppHost host)

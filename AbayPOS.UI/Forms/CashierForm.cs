@@ -297,6 +297,7 @@ public sealed class CashierForm : ThemedForm
         _saleNoLabel.TextAlign = ContentAlignment.MiddleLeft;
         _saleNoLabel.Padding = new Padding(12, 0, 0, 0);
         layout.Controls.Add(_saleNoLabel, 0, 0);
+        _cartList.ImageName = id => _catalog.FirstOrDefault(product => product.Id == id)?.ImagePath;
         _cartList.Dock = DockStyle.Fill;
         _cartList.QuantityPlus += (_, i) => NudgeAt(i, 1);
         _cartList.QuantityMinus += (_, i) => NudgeAt(i, -1);

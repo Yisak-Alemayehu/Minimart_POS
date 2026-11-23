@@ -1,4 +1,5 @@
 using AbayPOS.Domain;
+using AbayPOS.UI.Imaging;
 using AbayPOS.Domain.Entities;
 using AbayPOS.Domain.Models;
 using AbayPOS.UI.Controls;
@@ -58,6 +59,8 @@ internal sealed class ProductsPage : UserControl
         layout.Controls.Add(toolbar, 0, 1);
         GridTheme.Apply(_grid);
         _grid.Dock = DockStyle.Fill;
+        var photo = new DataGridViewImageColumn { Name = "Photo", HeaderText = string.Empty, ImageLayout = DataGridViewImageCellLayout.Zoom, AutoSizeMode = DataGridViewAutoSizeColumnMode.None, Width = Theme.Scale(44) };
+        _grid.Columns.Add(photo);
         _grid.Columns.Add("Barcode", "Barcode");
         _grid.Columns.Add("Name", "Name");
         _grid.Columns.Add("Cat", "Category");
@@ -80,16 +83,42 @@ internal sealed class ProductsPage : UserControl
     private void Filter()
     {
         var q = (_search.Text ?? string.Empty).Trim();
+        foreach (DataGridViewRow existing in _grid.Rows)
+        {
+            if (existing.Cells["Photo"].Value is Bitmap old)
+                old.Dispose();
+        }
+
         _grid.Rows.Clear();
         foreach (var p in _items.Where(p => q.Length == 0 || p.Name.Contains(q, StringComparison.OrdinalIgnoreCase) || p.Barcode.Contains(q, StringComparison.OrdinalIgnoreCase)))
-            _grid.Rows.Add(p.Barcode, p.Name, p.Category, Money.Format(p.Price), p.StockQty, p.ReorderLevel);
+        {
+            _grid.Rows.Add(DBNull.Value, p.Barcode, p.Name, p.Category, Money.Format(p.Price), p.StockQty, p.ReorderLevel);
+            if (string.IsNullOrWhiteSpace(p.ImagePath))
+                continue;
+            var path = p.ImagePath;
+            var barcode = p.Barcode;
+            ThumbnailCache.Shared.Request(_grid, path, Theme.Scale(32), () =>
+            {
+                var thumb = ThumbnailCache.Shared.Get(path, Theme.Scale(32));
+                if (thumb is null || _grid.IsDisposed)
+                    return;
+                foreach (DataGridViewRow gridRow in _grid.Rows)
+                {
+                    if (gridRow.Cells["Barcode"].Value?.ToString() != barcode)
+                        continue;
+                    if (gridRow.Cells["Photo"].Value is Bitmap previous)
+                        previous.Dispose();
+                    gridRow.Cells["Photo"].Value = (Bitmap)thumb.Clone();
+                }
+            });
+        }
     }
 
     private Product? Selected()
     {
         if (_grid.CurrentRow is null)
             return null;
-        var barcode = _grid.CurrentRow.Cells[0].Value?.ToString();
+        var barcode = _grid.CurrentRow.Cells["Barcode"].Value?.ToString();
         return _items.FirstOrDefault(p => p.Barcode == barcode);
     }
 
@@ -105,12 +134,25 @@ internal sealed class ProductsPage : UserControl
             overlay?.Close();
             if (result != DialogResult.OK)
                 return;
+            var saved = dialog.Product;
             if (product.Id == 0)
-                await ServiceLocator.Products.CreateAsync(dialog.Product, _session);
+                saved = await ServiceLocator.Products.CreateAsync(saved, _session);
             else
             {
-                dialog.Product.Id = product.Id;
-                await ServiceLocator.Products.UpdateAsync(dialog.Product, _session);
+                saved.Id = product.Id;
+                await ServiceLocator.Products.UpdateAsync(saved, _session);
+            }
+
+            if (dialog.ImageRemoved)
+            {
+                ServiceLocator.Images.Delete(saved.ImagePath);
+                saved.ImagePath = null;
+                await ServiceLocator.Products.UpdateAsync(saved, _session);
+            }
+            else if (dialog.ReplacementJpeg is not null)
+            {
+                saved.ImagePath = ServiceLocator.Images.Save(saved.Id, dialog.ReplacementJpeg, saved.ImagePath);
+                await ServiceLocator.Products.UpdateAsync(saved, _session);
             }
 
             Reload();
@@ -130,6 +172,7 @@ internal sealed class ProductsPage : UserControl
         ReorderLevel = p.ReorderLevel,
         SupplierId = p.SupplierId,
         IsActive = p.IsActive,
-        Emoji = p.Emoji
+        Emoji = p.Emoji,
+        ImagePath = p.ImagePath
     };
 }

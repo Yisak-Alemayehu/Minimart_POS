@@ -1,5 +1,6 @@
 using System.Drawing.Drawing2D;
 using AbayPOS.Domain.Entities;
+using AbayPOS.UI.Imaging;
 using AbayPOS.UI.Theming;
 
 namespace AbayPOS.UI.Controls;
@@ -95,10 +96,26 @@ public sealed class ProductTile : UserControl
         e.Graphics.FillPath(fill, path);
         e.Graphics.DrawPath(border, path);
 
-        var imageHeight = (int)(Height * 0.60f);
-        var emoji = string.IsNullOrWhiteSpace(Product.Emoji) ? "\uE7BF" : Product.Emoji;
-        var emojiFont = string.IsNullOrWhiteSpace(Product.Emoji) ? Theme.IconFont(28) : Theme.Font(22, FontStyle.Bold);
-        TextKit.DrawCenter(e.Graphics, emoji, emojiFont, new Rectangle(0, Theme.Scale(8), Width, Math.Max(1, imageHeight - Theme.Scale(12))), dim ? Theme.Disabled : Theme.Text);
+        var imageHeight = Math.Max(Theme.Scale(48), (int)(Height * 0.60f));
+        var imageBounds = new Rectangle(Theme.Scale(1), Theme.Scale(1), Math.Max(1, Width - Theme.Scale(2)), imageHeight);
+        var photo = string.IsNullOrWhiteSpace(Product.ImagePath) ? null : ThumbnailCache.Shared.Get(Product.ImagePath, imageBounds.Height);
+        if (photo is null && !string.IsNullOrWhiteSpace(Product.ImagePath))
+            ThumbnailCache.Shared.Request(this, Product.ImagePath, imageBounds.Height, Invalidate);
+        using (var clip = Gfx.Round(new RectangleF(1, 1, Width - 3, imageHeight + Theme.PanelRadius), Theme.PanelRadius))
+        {
+            var state = e.Graphics.Save();
+            e.Graphics.SetClip(clip);
+            if (photo is not null)
+                ProductImageCodec.DrawCover(e.Graphics, photo, imageBounds);
+            else
+            {
+                var emoji = string.IsNullOrWhiteSpace(Product.Emoji) ? "\uE7BF" : Product.Emoji;
+                var emojiFont = string.IsNullOrWhiteSpace(Product.Emoji) ? Theme.IconFont(28) : Theme.Font(22, FontStyle.Bold);
+                TextKit.DrawCenter(e.Graphics, emoji, emojiFont, imageBounds, dim ? Theme.Disabled : Theme.Text);
+            }
+
+            e.Graphics.Restore(state);
+        }
 
         var nameHeight = Theme.Scale(36);
         var priceHeight = Theme.Scale(22);
