@@ -30,8 +30,7 @@ public sealed class BarChart : Control
         e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
         if (_points.Count == 0)
         {
-            using var muted = new SolidBrush(Theme.TextSecondary);
-            e.Graphics.DrawString("No sales in this period.", Theme.FontBody(), muted, 8, Height / 2f);
+            e.Graphics.DrawString("No sales in this period.", Theme.FontBody(), Theme.Brush(Theme.TextSecondary), 8, Height / 2f);
             return;
         }
 
@@ -54,25 +53,21 @@ public sealed class BarChart : Control
             area.AddLines(pts);
         area.AddLine(pts[^1].X, pts[^1].Y, pts[^1].X, bottom);
         area.CloseFigure();
-        using var fade = new SolidBrush(Theme.Selection);
-        e.Graphics.FillPath(fade, area);
+        e.Graphics.FillPath(Theme.Brush(Theme.Selection), area);
 
-        using var line = new Pen(Theme.Accent, 2.5f) { LineJoin = LineJoin.Round };
+        var line = Theme.Stroke(Theme.Accent, 2.5f);
         if (pts.Length > 1)
             e.Graphics.DrawLines(line, pts);
-        using var dot = new SolidBrush(Theme.Accent);
-        using var hole = new SolidBrush(Theme.Card);
-        using var font = Theme.Font(8);
-        using var text = new SolidBrush(Theme.TextSecondary);
+        var font = Theme.Font(8);
         var labelEvery = Math.Max(1, _points.Count / 7);
         for (var i = 0; i < pts.Length; i++)
         {
-            e.Graphics.FillEllipse(dot, pts[i].X - 4, pts[i].Y - 4, 8, 8);
-            e.Graphics.FillEllipse(hole, pts[i].X - 2, pts[i].Y - 2, 4, 4);
+            e.Graphics.FillEllipse(Theme.Brush(Theme.Accent), pts[i].X - 4, pts[i].Y - 4, 8, 8);
+            e.Graphics.FillEllipse(Theme.Brush(Theme.Card), pts[i].X - 2, pts[i].Y - 2, 4, 4);
             if (i % labelEvery != 0 && i != pts.Length - 1)
                 continue;
             var label = _points[i].Date.ToString(_points.Count > 14 ? "d" : "ddd");
-            e.Graphics.DrawString(label, font, text, pts[i].X - 14, bottom + 6);
+            e.Graphics.DrawString(label, font, Theme.Brush(Theme.TextSecondary), pts[i].X - 14, bottom + 6);
         }
     }
 }

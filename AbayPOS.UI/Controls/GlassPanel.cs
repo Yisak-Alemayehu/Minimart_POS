@@ -28,7 +28,6 @@ public class GlassPanel : Panel
             _fill = Theme.Solid(value);
             BackColor = _fill;
             Surface.Adopt(this, _fill);
-            ApplyRegion();
             Invalidate();
         }
     }
@@ -56,28 +55,50 @@ public class GlassPanel : Panel
     protected override void OnSizeChanged(EventArgs e)
     {
         base.OnSizeChanged(e);
-        ApplyRegion();
+        RebuildPath();
     }
 
     protected override void OnPaintBackground(PaintEventArgs e)
     {
-        e.Graphics.Clear(BackColor);
+        var corner = Parent?.BackColor ?? Theme.Base;
+        e.Graphics.Clear(Theme.Solid(corner));
         if (Width <= 2 || Height <= 2)
             return;
+
         e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-        using var path = Gfx.Round(new RectangleF(0.5f, 0.5f, Width - 1f, Height - 1f), Radius);
-        using var pen = new Pen(Theme.Line, 1f);
-        e.Graphics.DrawPath(pen, path);
+        e.Graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+        var path = EnsurePath();
+        e.Graphics.FillPath(Theme.Brush(BackColor), path);
+        e.Graphics.DrawPath(Theme.Stroke(Theme.Line), path);
     }
 
-    private void ApplyRegion()
+    protected override void Dispose(bool disposing)
     {
-        if (Width <= 1 || Height <= 1)
-            return;
-        using var path = Gfx.Round(new RectangleF(0, 0, Width, Height), Radius);
-        var next = new Region(path);
-        var previous = Region;
-        Region = next;
-        previous?.Dispose();
+        if (disposing)
+            _path?.Dispose();
+        base.Dispose(disposing);
+    }
+
+    private GraphicsPath? _path;
+    private Size _pathSize;
+    private int _pathRadius;
+
+    private GraphicsPath EnsurePath()
+    {
+        if (_path is not null && _pathSize == Size && _pathRadius == Radius)
+            return _path;
+
+        RebuildPath();
+        return _path!;
+    }
+
+    private void RebuildPath()
+    {
+        _path?.Dispose();
+        _path = Width > 1 && Height > 1
+            ? Gfx.Round(new RectangleF(0.5f, 0.5f, Width - 1f, Height - 1f), Radius)
+            : new GraphicsPath();
+        _pathSize = Size;
+        _pathRadius = Radius;
     }
 }

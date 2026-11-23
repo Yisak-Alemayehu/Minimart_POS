@@ -70,14 +70,9 @@ internal sealed class ToastCard : Control
         e.Graphics.Clear(Theme.Card);
         e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
         using var path = Gfx.Round(new RectangleF(1, 1, Width - 2, Height - 2), Theme.ButtonRadius);
-        using var fill = new SolidBrush(Theme.GlassSolid);
-        using var border = new Pen(_accent, 1.5f);
-        e.Graphics.FillPath(fill, path);
-        e.Graphics.DrawPath(border, path);
-        using var bar = new SolidBrush(_accent);
-        e.Graphics.FillRectangle(bar, 10, 14, 4, Height - 28);
-        using var font = Theme.FontBody();
-        using var brush = new SolidBrush(Theme.Text);
-        e.Graphics.DrawString(Text, font, brush, new RectangleF(24, 10, Width - 36, Height - 20));
+        e.Graphics.FillPath(Theme.Brush(Theme.GlassSolid), path);
+        e.Graphics.DrawPath(Theme.Stroke(_accent, 1.5f), path);
+        e.Graphics.FillRectangle(Theme.Brush(_accent), 10, 14, 4, Height - 28);
+        e.Graphics.DrawString(Text, Theme.FontBody(), Theme.Brush(Theme.Text), new RectangleF(24, 10, Width - 36, Height - 20));
     }
 }

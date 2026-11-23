@@ -26,32 +26,48 @@ public sealed class ProductTile : UserControl
 
     public Product Product { get; }
 
+    public void SyncStock()
+    {
+        var blocked = Product.IsOutOfStock;
+        Enabled = !blocked;
+        Cursor = blocked ? Cursors.No : Cursors.Hand;
+        TabStop = !blocked;
+        Invalidate();
+    }
+
     protected override void OnMouseEnter(EventArgs e)
     {
         base.OnMouseEnter(e);
-        _hovered = true;
-        Invalidate();
+        SetFlag(ref _hovered, true);
     }
 
     protected override void OnMouseLeave(EventArgs e)
     {
         base.OnMouseLeave(e);
+        var changed = _hovered || _pressed;
         _hovered = false;
         _pressed = false;
-        Invalidate();
+        if (changed)
+            Invalidate();
     }
 
     protected override void OnMouseDown(MouseEventArgs e)
     {
         base.OnMouseDown(e);
-        _pressed = true;
-        Invalidate();
+        SetFlag(ref _pressed, true);
     }
 
     protected override void OnMouseUp(MouseEventArgs e)
     {
         base.OnMouseUp(e);
-        _pressed = false;
+        SetFlag(ref _pressed, false);
+    }
+
+    private void SetFlag(ref bool field, bool value)
+    {
+        if (field == value)
+            return;
+        field = value;
         Invalidate();
     }
 
@@ -66,8 +82,8 @@ public sealed class ProductTile : UserControl
         e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
         var dim = Product.IsOutOfStock;
         using var path = Gfx.Round(new RectangleF(1, 1, Width - 3, Height - 3), Theme.PanelRadius);
-        using var fill = new SolidBrush(dim ? Theme.TileMuted : _hovered ? Theme.TileHover : Theme.Tile);
-        using var border = new Pen(_hovered && !dim ? Theme.AccentHover : Theme.GlassBorder, _hovered && !dim ? 2 : 1);
+        var fill = Theme.Brush(dim ? Theme.TileMuted : _hovered ? Theme.TileHover : Theme.Tile);
+        var border = Theme.Stroke(_hovered && !dim ? Theme.AccentHover : Theme.GlassBorder, _hovered && !dim ? 2 : 1);
         if (_pressed && !dim)
         {
             e.Graphics.TranslateTransform(Width * 0.01f, Height * 0.01f);
@@ -77,18 +93,17 @@ public sealed class ProductTile : UserControl
         e.Graphics.FillPath(fill, path);
         e.Graphics.DrawPath(border, path);
 
-        var emoji = string.IsNullOrWhiteSpace(Product.Emoji) ? "🛒" : Product.Emoji;
-        using var emojiFont = new Font("Segoe UI Emoji", Math.Max(22, Width / 6f), FontStyle.Regular, GraphicsUnit.Point);
-        using var white = new SolidBrush(dim ? Theme.Disabled : Theme.Text);
-        using var center = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
-        e.Graphics.DrawString(emoji, emojiFont, white, new RectangleF(0, Height * 0.08f, Width, Height * 0.38f), center);
+        var emoji = string.IsNullOrWhiteSpace(Product.Emoji) ? "\uE7BF" : Product.Emoji;
+        var emojiFont = string.IsNullOrWhiteSpace(Product.Emoji) ? Theme.IconFont(28) : Theme.Font(22, FontStyle.Bold);
+        var ink = Theme.Brush(dim ? Theme.Disabled : Theme.Text);
+        e.Graphics.DrawString(emoji, emojiFont, ink, new RectangleF(0, Height * 0.08f, Width, Height * 0.38f), Theme.CenterFormat);
 
-        using var nameFont = Theme.Font(Math.Max(10, Width / 15f), FontStyle.Bold);
-        e.Graphics.DrawString(Product.Name, nameFont, white, new RectangleF(8, Height * 0.48f, Width - 16, Height * 0.22f), center);
+        var nameFont = Theme.Font(13, FontStyle.Bold);
+        e.Graphics.DrawString(Product.Name, nameFont, ink, new RectangleF(8, Height * 0.48f, Width - 16, Height * 0.22f), Theme.CenterFormat);
 
-        using var priceFont = Theme.Font(Math.Max(10, Width / 16f), FontStyle.Bold);
-        using var orange = new SolidBrush(dim ? Theme.Disabled : Theme.Accent);
-        e.Graphics.DrawString(AbayPOS.Domain.Money.Format(Product.Price), priceFont, orange, new RectangleF(0, Height * 0.72f, Width, Height * 0.16f), center);
+        var priceFont = Theme.Font(13, FontStyle.Bold);
+        var price = Theme.Brush(dim ? Theme.Disabled : Theme.Accent);
+        e.Graphics.DrawString(AbayPOS.Domain.Money.Format(Product.Price), priceFont, price, new RectangleF(0, Height * 0.72f, Width, Height * 0.16f), Theme.CenterFormat);
 
         if (Product.IsOutOfStock)
             DrawBadge(e.Graphics, "Out of stock", Theme.Danger);
@@ -98,14 +113,13 @@ public sealed class ProductTile : UserControl
 
     private void DrawBadge(Graphics g, string text, Color color)
     {
-        using var font = Theme.Font(8, FontStyle.Bold);
+        var font = Theme.Font(8, FontStyle.Bold);
         var size = g.MeasureString(text, font);
         var rect = new RectangleF(Width - size.Width - 18, 10, size.Width + 10, 18);
         using var path = Gfx.Round(rect, Theme.ChipRadius);
-        using var fill = new SolidBrush(color);
-        using var brush = new SolidBrush(Color.White);
-        using var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+        var fill = Theme.Brush(color);
+        var brush = Theme.Brush(Color.White);
         g.FillPath(fill, path);
-        g.DrawString(text, font, brush, rect, format);
+        g.DrawString(text, font, brush, rect, Theme.CenterFormat);
     }
 }

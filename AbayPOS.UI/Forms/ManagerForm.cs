@@ -12,6 +12,7 @@ public sealed class ManagerForm : ThemedForm
     private readonly Session _session;
     private readonly Panel _content = new() { Dock = DockStyle.Fill, BackColor = Theme.Base };
     private readonly Dictionary<string, UserControl> _pages = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, Func<UserControl>> _factories = new(StringComparer.Ordinal);
     private readonly Dictionary<string, RoundButton> _nav = new(StringComparer.Ordinal);
     private readonly Label _clock = new();
     private readonly Label _title = new();
@@ -51,22 +52,28 @@ public sealed class ManagerForm : ThemedForm
         root.Controls.Add(main, 1, 0);
         Controls.Add(root);
 
-        var dashboard = new DashboardPage(_session);
-        dashboard.ViewProducts += (_, _) => ShowPage("Products");
-        Register("Dashboard", dashboard);
-        Register("Products", new ProductsPage(_session));
-        Register("Receive Stock", new ReceiveStockPage(_session));
-        Register("Suppliers", new SuppliersPage(_session));
-        Register("Reports", new ReportsPage(_session));
-        Register("Sales History", new SalesHistoryPage(_session));
-        var low = new LowStockPage();
-        low.CountChanged += (_, count) =>
+        _factories["Dashboard"] = () =>
         {
-            if (_nav.TryGetValue("Low Stock", out var button))
-                button.Badge = count > 0 ? count.ToString() : string.Empty;
+            var dashboard = new DashboardPage(_session);
+            dashboard.ViewProducts += (_, _) => ShowPage("Products");
+            return dashboard;
         };
-        Register("Low Stock", low);
-        Register("Users", new UsersPage(_session));
+        _factories["Products"] = () => new ProductsPage(_session);
+        _factories["Receive Stock"] = () => new ReceiveStockPage(_session);
+        _factories["Suppliers"] = () => new SuppliersPage(_session);
+        _factories["Reports"] = () => new ReportsPage(_session);
+        _factories["Sales History"] = () => new SalesHistoryPage(_session);
+        _factories["Low Stock"] = () =>
+        {
+            var low = new LowStockPage();
+            low.CountChanged += (_, count) =>
+            {
+                if (_nav.TryGetValue("Low Stock", out var button))
+                    button.Badge = count > 0 ? count.ToString() : string.Empty;
+            };
+            return low;
+        };
+        _factories["Users"] = () => new UsersPage(_session);
         Surface.Adopt(this, Theme.Base);
     }
 
@@ -130,28 +137,58 @@ public sealed class ManagerForm : ThemedForm
         return bar;
     }
 
-    private void Register(string key, UserControl page)
+    private UserControl Page(string key)
     {
+        if (_pages.TryGetValue(key, out var existing))
+            return existing;
+
+        var page = _factories[key]();
         page.Dock = DockStyle.Fill;
         page.Visible = false;
         _pages[key] = page;
         _content.Controls.Add(page);
+        return page;
     }
 
     private void ShowPage(string key)
     {
         _current = key;
         _title.Text = key;
+        _content.SuspendLayout();
+        var page = Page(key);
         foreach (var pair in _pages)
             pair.Value.Visible = pair.Key == key;
+        page.BringToFront();
+        _content.ResumeLayout(true);
         foreach (var pair in _nav)
             pair.Value.FillColor = pair.Key == key ? Theme.Accent : Theme.Card;
-        if (_pages[key] is DashboardPage dashboard)
-            dashboard.Reload();
-        if (_pages[key] is LowStockPage low)
-            low.Reload();
-        if (_pages[key] is ProductsPage products)
-            products.Reload();
+        switch (page)
+        {
+            case DashboardPage dashboard:
+                dashboard.Reload();
+                break;
+            case LowStockPage low:
+                low.Reload();
+                break;
+            case ProductsPage products:
+                products.Reload();
+                break;
+            case SuppliersPage suppliers:
+                suppliers.Reload();
+                break;
+            case ReportsPage reports:
+                reports.Reload();
+                break;
+            case SalesHistoryPage history:
+                history.Reload();
+                break;
+            case UsersPage users:
+                users.Reload();
+                break;
+            case ReceiveStockPage stock:
+                stock.ReloadLookups();
+                break;
+        }
     }
 
     private static RoundButton CreateNav(string text, bool active) => new()

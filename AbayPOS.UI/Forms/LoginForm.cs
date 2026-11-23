@@ -236,10 +236,7 @@ public sealed class LoginForm : ThemedForm
         {
             e.Graphics.Clear(Theme.Card);
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            using var font = Theme.Font(28, FontStyle.Bold);
-            using var brush = new SolidBrush(Theme.Accent);
-            using var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-            e.Graphics.DrawString("AbayPOS", font, brush, ClientRectangle, format);
+            e.Graphics.DrawString("AbayPOS", Theme.Font(28, FontStyle.Bold), Theme.Brush(Theme.Accent), ClientRectangle, Theme.CenterFormat);
         }
     }
 
@@ -258,13 +255,13 @@ public sealed class LoginForm : ThemedForm
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             using var brush = new LinearGradientBrush(ClientRectangle, Theme.Brand, Theme.Accent, 135f);
             e.Graphics.FillRectangle(brush, ClientRectangle);
-            using var white = new SolidBrush(Color.White);
-            using var soft = new SolidBrush(Color.FromArgb(230, 236, 255));
-            using var mark = Theme.IconFont(42);
-            using var title = Theme.Font(36, FontStyle.Bold);
-            using var sub = Theme.Font(16);
-            using var tag = Theme.Font(13, FontStyle.Bold);
-            using var center = new StringFormat { Alignment = StringAlignment.Center };
+            var white = Theme.Brush(Color.White);
+            var soft = Theme.Brush(Color.FromArgb(230, 236, 255));
+            var mark = Theme.IconFont(42);
+            var title = Theme.Font(36, FontStyle.Bold);
+            var sub = Theme.Font(16);
+            var tag = Theme.Font(13, FontStyle.Bold);
+            var center = Theme.CenterFormat;
             var y = Height * 0.28f;
             e.Graphics.DrawString("\uE7BF", mark, white, new RectangleF(0, y, Width, 70), center);
             e.Graphics.DrawString("AbayPOS", title, white, new RectangleF(0, y + 78, Width, 52), center);

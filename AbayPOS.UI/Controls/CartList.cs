@@ -15,7 +15,7 @@ public sealed class CartList : Control
     private IReadOnlyList<CartLine> _lines = [];
     private int _selected;
     private int _flashIndex = -1;
-    private readonly System.Windows.Forms.Timer _flash = new() { Interval = 180 };
+    private readonly System.Windows.Forms.Timer _flash = new() { Interval = 400 };
 
     public CartList()
     {
@@ -32,9 +32,10 @@ public sealed class CartList : Control
         Controls.Add(_scroll);
         _flash.Tick += (_, _) =>
         {
+            var flashed = _flashIndex;
             _flashIndex = -1;
             _flash.Stop();
-            Invalidate();
+            InvalidateRow(flashed);
         };
     }
 
@@ -49,15 +50,23 @@ public sealed class CartList : Control
         get => _selected;
         set
         {
-            _selected = _lines.Count == 0 ? -1 : Math.Clamp(value, 0, _lines.Count - 1);
+            var next = _lines.Count == 0 ? -1 : Math.Clamp(value, 0, _lines.Count - 1);
+            if (_selected == next)
+                return;
+            var previous = _selected;
+            _selected = next;
             EnsureVisible(_selected);
             SelectionChanged?.Invoke(this, _selected);
-            Invalidate();
+            InvalidateRow(previous);
+            InvalidateRow(_selected);
         }
     }
 
     public void SetLines(IReadOnlyList<CartLine> lines, int? selectIndex = null, bool flash = false)
     {
+        var previousCount = _lines.Count;
+        var previousSelected = _selected;
+        var previousFlash = _flashIndex;
         _lines = lines;
         _scroll.Maximum = Math.Max(0, lines.Count * RowHeight);
         _scroll.Visible = lines.Count * RowHeight > Height;
@@ -72,7 +81,24 @@ public sealed class CartList : Control
             _flash.Start();
         }
 
+        if (previousCount == lines.Count)
+        {
+            InvalidateRow(previousSelected);
+            InvalidateRow(previousFlash);
+            InvalidateRow(_selected);
+            InvalidateRow(_flashIndex);
+            return;
+        }
+
         Invalidate();
+    }
+
+    private void InvalidateRow(int index)
+    {
+        if (index < 0)
+            return;
+        var row = RowBounds(index);
+        Invalidate(new Rectangle(row.X, row.Y, Math.Max(1, row.Width), row.Height));
     }
 
     protected override void OnMouseWheel(MouseEventArgs e)
@@ -108,10 +134,7 @@ public sealed class CartList : Control
         e.Graphics.Clear(Theme.CartSurface);
         if (_lines.Count == 0)
         {
-            using var muted = new SolidBrush(Theme.TextSecondary);
-            using var font = Theme.FontBody();
-            using var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-            e.Graphics.DrawString("Cart is empty. Scan a barcode or tap a product.", font, muted, ClientRectangle, format);
+            e.Graphics.DrawString("Scan a barcode or tap a product to start", Theme.FontBody(), Theme.Brush(Theme.TextSecondary), ClientRectangle, Theme.CenterFormat);
             return;
         }
 
@@ -125,43 +148,26 @@ public sealed class CartList : Control
     {
         var line = _lines[index];
         var row = RowBounds(index);
-        if (index == _flashIndex)
-        {
-            using var flash = new SolidBrush(Theme.Selection);
-            g.FillRectangle(flash, row);
-        }
-        else if (index == _selected)
-        {
-            using var sel = new SolidBrush(Theme.Selection);
-            g.FillRectangle(sel, row);
-        }
+        if (index == _flashIndex || index == _selected)
+            g.FillRectangle(Theme.Brush(Theme.Selection), row);
 
-        using var nameFont = Theme.Font(12, FontStyle.Bold);
-        using var body = Theme.Font(11);
-        using var text = new SolidBrush(Theme.Text);
-        using var muted = new SolidBrush(Theme.TextSecondary);
-        using var accent = new SolidBrush(Theme.Accent);
-        g.DrawString(line.ProductName, nameFont, text, new RectangleF(row.X + 8, row.Y + 6, row.Width * 0.42f, 22));
-        g.DrawString(Money.Format(line.UnitPrice), body, muted, new RectangleF(row.X + 8, row.Y + 28, 120, 18));
+        var nameFont = Theme.Font(12, FontStyle.Bold);
+        var body = Theme.Font(11);
+        g.DrawString(line.ProductName, nameFont, Theme.Brush(Theme.Text), new RectangleF(row.X + 8, row.Y + 6, row.Width * 0.42f, 22));
+        g.DrawString(Money.Format(line.UnitPrice), body, Theme.Brush(Theme.TextSecondary), new RectangleF(row.X + 8, row.Y + 28, 120, 18));
 
         DrawStepper(g, MinusRect(row), "−");
-        using var center = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-        g.DrawString(line.Qty.ToString(), body, text, QtyRect(row), center);
+        g.DrawString(line.Qty.ToString(), body, Theme.Brush(Theme.Text), QtyRect(row), Theme.CenterFormat);
         DrawStepper(g, PlusRect(row), "+");
-        using var right = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Center };
-        g.DrawString(Money.Format(line.LineTotal), nameFont, accent, new RectangleF(row.Right - 108, row.Y, 72, row.Height), right);
+        g.DrawString(Money.Format(line.LineTotal), nameFont, Theme.Brush(Theme.Accent), new RectangleF(row.Right - 108, row.Y, 72, row.Height), Theme.FarFormat);
         DrawStepper(g, RemoveRect(row), "×");
     }
 
     private static void DrawStepper(Graphics g, RectangleF rect, string glyph)
     {
         using var path = Gfx.Round(rect, 8);
-        using var fill = new SolidBrush(Theme.NavGlass);
-        using var brush = new SolidBrush(Theme.Text);
-        using var font = Theme.Font(12, FontStyle.Bold);
-        using var center = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-        g.FillPath(fill, path);
-        g.DrawString(glyph, font, brush, rect, center);
+        g.FillPath(Theme.Brush(Theme.NavGlass), path);
+        g.DrawString(glyph, Theme.Font(12, FontStyle.Bold), Theme.Brush(Theme.Text), rect, Theme.CenterFormat);
     }
 
     private Rectangle RowBounds(int index)

@@ -30,13 +30,30 @@ public sealed class ChipButton : Control
         get => _selected;
         set
         {
+            if (_selected == value)
+                return;
             _selected = value;
             Invalidate();
         }
     }
 
-    protected override void OnMouseEnter(EventArgs e) { base.OnMouseEnter(e); _hovered = true; Invalidate(); }
-    protected override void OnMouseLeave(EventArgs e) { base.OnMouseLeave(e); _hovered = false; Invalidate(); }
+    protected override void OnMouseEnter(EventArgs e)
+    {
+        base.OnMouseEnter(e);
+        if (_hovered)
+            return;
+        _hovered = true;
+        Invalidate();
+    }
+
+    protected override void OnMouseLeave(EventArgs e)
+    {
+        base.OnMouseLeave(e);
+        if (!_hovered)
+            return;
+        _hovered = false;
+        Invalidate();
+    }
     protected override void OnClick(EventArgs e) { base.OnClick(e); }
 
     protected override void OnPaint(PaintEventArgs e)
@@ -45,21 +62,20 @@ public sealed class ChipButton : Control
         e.Graphics.Clear(Theme.Solid(backdrop));
         e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
         using var path = Gfx.Round(new RectangleF(0.5f, 0.5f, Width - 1, Height - 1), Theme.ChipRadius);
-        using var fill = new SolidBrush(Selected ? Theme.Accent : _hovered ? Theme.TileHover : Theme.NavRaised);
-        using var border = new Pen(Selected ? Theme.Accent : Theme.Line);
+        var fill = Theme.Brush(Selected ? Theme.Accent : _hovered ? Theme.TileHover : Theme.NavRaised);
+        var border = Theme.Stroke(Selected ? Theme.Accent : Theme.Line);
         e.Graphics.FillPath(fill, path);
         e.Graphics.DrawPath(border, path);
-        using var font = Theme.FontHint();
-        using var brush = new SolidBrush(Selected ? Theme.OnAccent : Theme.Text);
-        using var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-        e.Graphics.DrawString(Text, font, brush, ClientRectangle, format);
+        var font = Theme.FontHint();
+        var brush = Theme.Brush(Selected ? Theme.OnAccent : Theme.Text);
+        e.Graphics.DrawString(Text, font, brush, ClientRectangle, Theme.CenterFormat);
     }
 
     protected override void OnPaddingChanged(EventArgs e)
     {
         base.OnPaddingChanged(e);
         using var g = CreateGraphics();
-        using var font = Theme.FontHint();
+        var font = Theme.FontHint();
         Width = Math.Max(64, (int)g.MeasureString(Text, font).Width + 28);
     }
 }

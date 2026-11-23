@@ -70,6 +70,8 @@ public class RoundButton : Button
     protected override void OnMouseEnter(EventArgs e)
     {
         base.OnMouseEnter(e);
+        if (_hovered)
+            return;
         _hovered = true;
         Invalidate();
     }
@@ -77,6 +79,8 @@ public class RoundButton : Button
     protected override void OnMouseLeave(EventArgs e)
     {
         base.OnMouseLeave(e);
+        if (!_hovered && !_pressed)
+            return;
         _hovered = false;
         _pressed = false;
         Invalidate();
@@ -85,6 +89,8 @@ public class RoundButton : Button
     protected override void OnMouseDown(MouseEventArgs e)
     {
         base.OnMouseDown(e);
+        if (_pressed)
+            return;
         _pressed = true;
         Invalidate();
     }
@@ -92,6 +98,8 @@ public class RoundButton : Button
     protected override void OnMouseUp(MouseEventArgs mevent)
     {
         base.OnMouseUp(mevent);
+        if (!_pressed)
+            return;
         _pressed = false;
         Invalidate();
     }
@@ -131,30 +139,23 @@ public class RoundButton : Button
         else if (_hovered)
             fill = Lighten(fill, 0.10f);
 
-        using var brush = new SolidBrush(fill);
-        e.Graphics.FillPath(brush, path);
+        e.Graphics.FillPath(Theme.Brush(fill), path);
         if (BorderColor.A == 255)
-        {
-            using var border = new Pen(Enabled ? BorderColor : Color.FromArgb(40, BorderColor), 1f);
-            e.Graphics.DrawPath(border, path);
-        }
+            e.Graphics.DrawPath(Theme.Stroke(Enabled ? BorderColor : Color.FromArgb(255, 40, 40, 40)), path);
 
         if (Focused && Enabled)
         {
-            using var ring = new Pen(Theme.FocusRing, 2f);
             using var ringPath = Gfx.Round(new RectangleF(2, 2, Width - 4, Height - 4), Theme.ButtonRadius);
-            e.Graphics.DrawPath(ring, ringPath);
+            e.Graphics.DrawPath(Theme.Stroke(Theme.FocusRing, 2f), ringPath);
         }
 
         var textColor = Enabled ? ForeColor : Theme.Disabled;
+        var textBrush = Theme.Brush(textColor);
         if (Icon.Length > 0)
         {
-            using var iconFont = Theme.IconFont(12);
-            using var iconBrush = new SolidBrush(textColor);
-            e.Graphics.DrawString(Icon, iconFont, iconBrush, 16, (Height - iconFont.Height) / 2f - 1);
+            var iconFont = Theme.IconFont(12);
+            e.Graphics.DrawString(Icon, iconFont, textBrush, 16, (Height - iconFont.Height) / 2f - 1);
         }
-
-        using var textBrush = new SolidBrush(textColor);
         using var format = new StringFormat
         {
             Alignment = LabelAlign is ContentAlignment.MiddleLeft or ContentAlignment.TopLeft or ContentAlignment.BottomLeft
@@ -172,14 +173,10 @@ public class RoundButton : Button
 
         var rect = new RectangleF(Width - 70, (Height - 24) / 2f, 56, 24);
         using var badgePath = Gfx.Round(rect, Theme.ChipRadius);
-        using var badgeFill = new SolidBrush(Theme.BadgeFill);
-        using var badgePen = new Pen(Theme.BadgeBorder);
-        using var badgeFont = Theme.Font(8, FontStyle.Bold);
-        e.Graphics.FillPath(badgeFill, badgePath);
-        e.Graphics.DrawPath(badgePen, badgePath);
-        using var center = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-        using var badgeText = new SolidBrush(Theme.Text);
-        e.Graphics.DrawString(Badge, badgeFont, badgeText, rect, center);
+        var badgeFont = Theme.Font(8, FontStyle.Bold);
+        e.Graphics.FillPath(Theme.Brush(Theme.BadgeFill), badgePath);
+        e.Graphics.DrawPath(Theme.Stroke(Theme.BadgeBorder), badgePath);
+        e.Graphics.DrawString(Badge, badgeFont, Theme.Brush(Theme.Text), rect, Theme.CenterFormat);
     }
 
     private static Color Lighten(Color color, float amount) =>

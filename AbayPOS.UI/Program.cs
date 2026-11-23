@@ -10,6 +10,7 @@ internal static class Program
     [STAThread]
     private static void Main()
     {
+        Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
         ApplicationConfiguration.Initialize();
         Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
         Application.ThreadException += (_, e) => CrashGuard.Handle(e.Exception, "UI thread");

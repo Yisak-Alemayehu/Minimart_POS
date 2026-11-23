@@ -7,7 +7,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>AbayPOS.UI</RootNamespace>
     <AssemblyName>AbayPOS</AssemblyName>
-    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Resources\abaypos.ico</ApplicationIcon>
     <ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>

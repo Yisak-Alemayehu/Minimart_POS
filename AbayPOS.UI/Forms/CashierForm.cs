@@ -15,6 +15,16 @@ public sealed class CashierForm : ThemedForm
     private readonly Cart _cart;
     private readonly List<Product> _catalog = [];
     private readonly FlowLayoutPanel _productsFlow = new();
+    private readonly List<ProductTile> _tiles = [];
+    private readonly Label _emptyProducts = new()
+    {
+        Text = "No products match that search.",
+        ForeColor = Theme.TextSecondary,
+        AutoSize = true,
+        Font = Theme.FontBody(),
+        Margin = new Padding(8),
+        Visible = false
+    };
     private readonly FlowLayoutPanel _chips = new();
     private readonly CartList _cartList = new();
     private readonly GlassTextBox _barcodeBox = new();
@@ -357,7 +367,7 @@ public sealed class CashierForm : ThemedForm
         _salePreview = await ServiceLocator.Sales.PreviewSaleNoAsync();
         _saleNoLabel.Text = "Current sale " + _salePreview;
         RebuildChips(categories);
-        RenderTiles(_catalog);
+        BindTiles();
         FocusBarcode();
     }
 
@@ -388,35 +398,47 @@ public sealed class CashierForm : ThemedForm
     private void ApplyFilter()
     {
         var query = (_barcodeBox.Text ?? string.Empty).Trim();
-        IEnumerable<Product> filtered = _catalog;
-        if (_category != "All")
-            filtered = filtered.Where(p => p.Category == _category);
-        if (query.Length > 0)
-            filtered = filtered.Where(p => p.Name.Contains(query, StringComparison.OrdinalIgnoreCase) || p.Barcode.Contains(query, StringComparison.OrdinalIgnoreCase));
-        RenderTiles(filtered.ToList());
+        _productsFlow.SuspendLayout();
+        var any = false;
+        foreach (var tile in _tiles)
+        {
+            tile.SyncStock();
+            var product = tile.Product;
+            var categoryMatches = _category == "All" || product.Category == _category;
+            var textMatches = query.Length == 0
+                || product.Name.Contains(query, StringComparison.OrdinalIgnoreCase)
+                || product.Barcode.Contains(query, StringComparison.OrdinalIgnoreCase);
+            tile.Visible = categoryMatches && textMatches;
+            any |= tile.Visible;
+        }
+
+        _emptyProducts.Visible = !any;
+        _productsFlow.ResumeLayout(true);
     }
 
-    private void RenderTiles(IReadOnlyList<Product> products)
+    private void BindTiles()
     {
         _productsFlow.SuspendLayout();
+        foreach (var tile in _tiles)
+            tile.Dispose();
+        _tiles.Clear();
         _productsFlow.Controls.Clear();
-        if (products.Count == 0)
+        _productsFlow.Controls.Add(_emptyProducts);
+        foreach (var product in _catalog)
         {
-            _productsFlow.Controls.Add(new Label { Text = "No products match that search.", ForeColor = Theme.TextSecondary, AutoSize = true, Font = Theme.FontBody(), Margin = new Padding(8) });
-        }
-        else
-        {
-            foreach (var product in products)
+            var tile = new ProductTile(product);
+            tile.Click += (_, _) =>
             {
-                var tile = new ProductTile(product);
-                if (!product.IsOutOfStock)
-                    tile.Click += (_, _) => TryAdd(product);
-                _productsFlow.Controls.Add(tile);
-            }
+                if (!tile.Product.IsOutOfStock)
+                    TryAdd(tile.Product);
+            };
+            _tiles.Add(tile);
+            _productsFlow.Controls.Add(tile);
         }
 
-        _productsFlow.ResumeLayout();
+        _productsFlow.ResumeLayout(true);
         ResizeTiles();
+        ApplyFilter();
     }
 
     private void BarcodeKeyDown(object? sender, KeyEventArgs e)
