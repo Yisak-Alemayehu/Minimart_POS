@@ -152,7 +152,19 @@ public sealed class CartList : Control
             DrawRow(e.Graphics, i);
     }
 
-    private int RowHeight => Theme.Scale(64);
+    private int RowHeight
+    {
+        get
+        {
+            var name = LineHeight(Theme.Font(12, FontStyle.Bold));
+            var unit = LineHeight(Theme.Font(10));
+            return Theme.Scale(12) + name * 2 + Theme.Scale(4) + unit;
+        }
+    }
+
+    private static int LineHeight(Font font) =>
+        TextRenderer.MeasureText("Ag", font, new Size(int.MaxValue, int.MaxValue),
+            TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix | TextFormatFlags.SingleLine).Height;
 
     private void DrawRow(Graphics g, int index)
     {
@@ -163,16 +175,17 @@ public sealed class CartList : Control
             g.FillRectangle(Theme.Brush(Theme.Selection), row);
 
         DrawThumb(g, line, slots.Thumb);
-        TextKit.DrawFit(g, line.ProductName, Theme.Font(12, FontStyle.Bold), slots.Name, Theme.Text, wrap: true);
+        DrawClipped(g, slots.Name, () =>
+            TextKit.DrawFit(g, line.ProductName, Theme.Font(12, FontStyle.Bold), slots.Name, Theme.Text, wrap: true));
         var unitText = Money.Format(line.UnitPrice) + " each";
-        var unitFont = TextKit.FitFont(g, unitText, Theme.Font(11), Math.Max(1, slots.Unit.Width - Theme.Scale(6)), 8f);
-        TextKit.DrawExact(g, unitText, unitFont, slots.Unit, Theme.TextSecondary);
+        var unitFont = TextKit.FitFont(g, unitText, Theme.Font(10), Math.Max(1, slots.Unit.Width), 8f);
+        DrawClipped(g, slots.Unit, () => TextKit.DrawExact(g, unitText, unitFont, slots.Unit, Theme.TextSecondary));
         DrawStepper(g, slots.Minus, "−");
         TextKit.DrawCenter(g, line.Qty.ToString(), Theme.Font(11, FontStyle.Bold), slots.Qty, Theme.Text);
         DrawStepper(g, slots.Plus, "+");
         var totalText = Money.Format(line.LineTotal);
         var totalFont = TextKit.FitFont(g, totalText, Theme.Font(12, FontStyle.Bold), Math.Max(1, slots.Total.Width - Theme.Scale(6)), 8f);
-        TextKit.DrawMoney(g, totalText, totalFont, slots.Total, Theme.Accent);
+        DrawClipped(g, slots.Total, () => TextKit.DrawMoney(g, totalText, totalFont, slots.Total, Theme.Accent));
         DrawStepper(g, slots.Remove, "×");
     }
 
@@ -200,9 +213,20 @@ public sealed class CartList : Control
         var minus = new Rectangle(qty.Left - button, remove.Y, button, button);
         var thumb = new Rectangle(row.X + pad, row.Y + (row.Height - thumbSize) / 2, thumbSize, thumbSize);
         var nameX = thumb.Right + pad;
-        var name = new Rectangle(nameX, row.Y + Theme.Scale(4), Math.Max(Theme.Scale(40), minus.Left - pad - nameX), row.Height / 2);
-        var unit = new Rectangle(name.X, name.Bottom, name.Width, row.Bottom - name.Bottom - Theme.Scale(4));
+        var nameWidth = Math.Max(1, minus.Left - pad - nameX);
+        var nameLine = LineHeight(Theme.Font(12, FontStyle.Bold));
+        var unitLine = LineHeight(Theme.Font(10));
+        var name = new Rectangle(nameX, row.Y + Theme.Scale(6), nameWidth, nameLine * 2);
+        var unit = new Rectangle(name.X, name.Bottom + Theme.Scale(2), nameWidth, unitLine + Theme.Scale(2));
         return new RowSlots(thumb, name, unit, minus, qty, plus, total, remove);
+    }
+
+    private static void DrawClipped(Graphics graphics, Rectangle bounds, Action draw)
+    {
+        var state = graphics.Save();
+        graphics.SetClip(bounds);
+        draw();
+        graphics.Restore(state);
     }
 
     private void DrawThumb(Graphics g, CartLine line, Rectangle bounds)
