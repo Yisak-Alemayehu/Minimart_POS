@@ -73,6 +73,6 @@ internal sealed class ToastCard : Control
         e.Graphics.FillPath(Theme.Brush(Theme.GlassSolid), path);
         e.Graphics.DrawPath(Theme.Stroke(_accent, 1.5f), path);
         e.Graphics.FillRectangle(Theme.Brush(_accent), 10, 14, 4, Height - 28);
-        e.Graphics.DrawString(Text, Theme.FontBody(), Theme.Brush(Theme.Text), new RectangleF(24, 10, Width - 36, Height - 20));
+        TextKit.DrawFit(e.Graphics, Text, Theme.FontBody(), new Rectangle(24, 10, Math.Max(1, Width - 36), Math.Max(1, Height - 20)), Theme.Text, wrap: true);
     }
 }

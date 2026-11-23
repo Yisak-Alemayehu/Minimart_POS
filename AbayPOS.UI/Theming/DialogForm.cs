@@ -22,6 +22,14 @@ public class DialogForm : Form
     protected override void OnHandleCreated(EventArgs e)
     {
         base.OnHandleCreated(e);
+        Theme.UseDpi(DeviceDpi);
         WindowStyler.Apply(this);
+    }
+
+    protected override void OnDpiChanged(DpiChangedEventArgs e)
+    {
+        base.OnDpiChanged(e);
+        Theme.UseDpi(e.DeviceDpiNew);
+        PerformLayout();
     }
 }

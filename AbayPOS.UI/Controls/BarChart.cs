@@ -30,7 +30,7 @@ public sealed class BarChart : Control
         e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
         if (_points.Count == 0)
         {
-            e.Graphics.DrawString("No sales in this period.", Theme.FontBody(), Theme.Brush(Theme.TextSecondary), 8, Height / 2f);
+            TextKit.DrawFit(e.Graphics, "No sales in this period.", Theme.FontBody(), new Rectangle(8, Height / 2, Width - 16, Theme.Scale(24)), Theme.TextSecondary);
             return;
         }
 
@@ -67,7 +67,7 @@ public sealed class BarChart : Control
             if (i % labelEvery != 0 && i != pts.Length - 1)
                 continue;
             var label = _points[i].Date.ToString(_points.Count > 14 ? "d" : "ddd");
-            e.Graphics.DrawString(label, font, Theme.Brush(Theme.TextSecondary), pts[i].X - 14, bottom + 6);
+            TextKit.DrawCenter(e.Graphics, label, font, new Rectangle((int)pts[i].X - 18, (int)bottom + 4, 36, Theme.Scale(18)), Theme.TextSecondary);
         }
     }
 }

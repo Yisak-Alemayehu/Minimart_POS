@@ -19,4 +19,18 @@ public class AppForm : Form
             return parameters;
         }
     }
+
+    protected override void OnHandleCreated(EventArgs e)
+    {
+        base.OnHandleCreated(e);
+        Theme.UseDpi(DeviceDpi);
+    }
+
+    protected override void OnDpiChanged(DpiChangedEventArgs e)
+    {
+        base.OnDpiChanged(e);
+        Theme.UseDpi(e.DeviceDpiNew);
+        PerformLayout();
+        Invalidate(true);
+    }
 }

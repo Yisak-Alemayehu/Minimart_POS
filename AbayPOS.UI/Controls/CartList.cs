@@ -134,7 +134,7 @@ public sealed class CartList : Control
         e.Graphics.Clear(Theme.CartSurface);
         if (_lines.Count == 0)
         {
-            e.Graphics.DrawString("Scan a barcode or tap a product to start", Theme.FontBody(), Theme.Brush(Theme.TextSecondary), ClientRectangle, Theme.CenterFormat);
+            TextKit.DrawCenter(e.Graphics, "Scan a barcode or tap a product to start", Theme.FontBody(), ClientRectangle, Theme.TextSecondary);
             return;
         }
 
@@ -153,13 +153,16 @@ public sealed class CartList : Control
 
         var nameFont = Theme.Font(12, FontStyle.Bold);
         var body = Theme.Font(11);
-        g.DrawString(line.ProductName, nameFont, Theme.Brush(Theme.Text), new RectangleF(row.X + 8, row.Y + 6, row.Width * 0.42f, 22));
-        g.DrawString(Money.Format(line.UnitPrice), body, Theme.Brush(Theme.TextSecondary), new RectangleF(row.X + 8, row.Y + 28, 120, 18));
+        TextKit.DrawFit(g, line.ProductName, nameFont, Rectangle.Round(new RectangleF(row.X + 8, row.Y + 6, row.Width * 0.42f, 22)), Theme.Text);
+        TextKit.DrawFit(g, Money.Format(line.UnitPrice), body, Rectangle.Round(new RectangleF(row.X + 8, row.Y + 28, 120, 18)), Theme.TextSecondary);
 
         DrawStepper(g, MinusRect(row), "−");
-        g.DrawString(line.Qty.ToString(), body, Theme.Brush(Theme.Text), QtyRect(row), Theme.CenterFormat);
+        TextKit.DrawCenter(g, line.Qty.ToString(), body, Rectangle.Round(QtyRect(row)), Theme.Text);
         DrawStepper(g, PlusRect(row), "+");
-        g.DrawString(Money.Format(line.LineTotal), nameFont, Theme.Brush(Theme.Accent), new RectangleF(row.Right - 108, row.Y, 72, row.Height), Theme.FarFormat);
+        var totalText = Money.Format(line.LineTotal);
+        var totalSlot = Rectangle.Round(new RectangleF(row.Right - 108, row.Y, 72, row.Height));
+        var totalFont = TextKit.FitFont(g, totalText, nameFont, totalSlot.Width, 10f);
+        TextKit.DrawMoney(g, totalText, totalFont, totalSlot, Theme.Accent);
         DrawStepper(g, RemoveRect(row), "×");
     }
 
@@ -167,7 +170,7 @@ public sealed class CartList : Control
     {
         using var path = Gfx.Round(rect, 8);
         g.FillPath(Theme.Brush(Theme.NavGlass), path);
-        g.DrawString(glyph, Theme.Font(12, FontStyle.Bold), Theme.Brush(Theme.Text), rect, Theme.CenterFormat);
+        TextKit.DrawCenter(g, glyph, Theme.Font(12, FontStyle.Bold), Rectangle.Round(rect), Theme.Text);
     }
 
     private Rectangle RowBounds(int index)

@@ -150,23 +150,16 @@ public class RoundButton : Button
         }
 
         var textColor = Enabled ? ForeColor : Theme.Disabled;
-        var textBrush = Theme.Brush(textColor);
+        var left = Icon.Length > 0 ? Theme.Scale(38) : Theme.Scale(8);
         if (Icon.Length > 0)
-        {
-            var iconFont = Theme.IconFont(12);
-            e.Graphics.DrawString(Icon, iconFont, textBrush, 16, (Height - iconFont.Height) / 2f - 1);
-        }
-        using var format = new StringFormat
-        {
-            Alignment = LabelAlign is ContentAlignment.MiddleLeft or ContentAlignment.TopLeft or ContentAlignment.BottomLeft
-                ? StringAlignment.Near
-                : StringAlignment.Center,
-            LineAlignment = StringAlignment.Center,
-            Trimming = StringTrimming.EllipsisCharacter
-        };
-        var left = Icon.Length > 0 ? 38 : 8;
-        var right = Badge.Length > 0 ? 86 : 16;
-        e.Graphics.DrawString(Text, Font, textBrush, new RectangleF(left, 0, Width - left - right, Height), format);
+            TextKit.DrawFit(e.Graphics, Icon, Theme.IconFont(12), new Rectangle(Theme.Scale(12), 0, Theme.Scale(20), Height), textColor);
+        var right = Badge.Length > 0 ? Theme.Scale(86) : Theme.Scale(16);
+        var alignLeft = LabelAlign is ContentAlignment.MiddleLeft or ContentAlignment.TopLeft or ContentAlignment.BottomLeft;
+        var textBounds = new Rectangle(left, 0, Math.Max(1, Width - left - right), Height);
+        if (alignLeft)
+            TextKit.DrawFit(e.Graphics, Text, Font, textBounds, textColor);
+        else
+            TextKit.DrawCenter(e.Graphics, Text, Font, textBounds, textColor);
 
         if (Badge.Length == 0)
             return;
@@ -176,7 +169,7 @@ public class RoundButton : Button
         var badgeFont = Theme.Font(8, FontStyle.Bold);
         e.Graphics.FillPath(Theme.Brush(Theme.BadgeFill), badgePath);
         e.Graphics.DrawPath(Theme.Stroke(Theme.BadgeBorder), badgePath);
-        e.Graphics.DrawString(Badge, badgeFont, Theme.Brush(Theme.Text), rect, Theme.CenterFormat);
+        TextKit.DrawCenter(e.Graphics, Badge, badgeFont, Rectangle.Round(rect), Theme.Text);
     }
 
     private static Color Lighten(Color color, float amount) =>

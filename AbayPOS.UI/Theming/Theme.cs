@@ -63,6 +63,14 @@ public static class Theme
     public const int InputRadius = 8;
     public const int AnimationMs = 150;
 
+    /// <summary>Current monitor DPI. Updated from the active form.</summary>
+    public static int DeviceDpi { get; private set; } = 96;
+
+    public static void UseDpi(int dpi) => DeviceDpi = Math.Max(96, dpi);
+
+    /// <summary>Converts a 96-DPI pixel size to the current monitor.</summary>
+    public static int Scale(int px) => Math.Max(1, (int)Math.Round(px * DeviceDpi / 96f));
+
     public static readonly StringFormat CenterFormat = new()
     {
         Alignment = StringAlignment.Center,

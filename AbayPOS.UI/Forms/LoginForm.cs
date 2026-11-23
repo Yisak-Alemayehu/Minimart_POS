@@ -240,7 +240,7 @@ public sealed class LoginForm : ThemedForm
         {
             e.Graphics.Clear(Theme.Card);
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            e.Graphics.DrawString("AbayPOS", Theme.Font(28, FontStyle.Bold), Theme.Brush(Theme.Accent), ClientRectangle, Theme.CenterFormat);
+            TextKit.DrawCenter(e.Graphics, "AbayPOS", Theme.Font(28, FontStyle.Bold), ClientRectangle, Theme.Accent);
         }
     }
 

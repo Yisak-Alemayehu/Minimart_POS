@@ -66,9 +66,7 @@ public sealed class ChipButton : Control
         var border = Theme.Stroke(Selected ? Theme.Accent : Theme.Line);
         e.Graphics.FillPath(fill, path);
         e.Graphics.DrawPath(border, path);
-        var font = Theme.FontHint();
-        var brush = Theme.Brush(Selected ? Theme.OnAccent : Theme.Text);
-        e.Graphics.DrawString(Text, font, brush, ClientRectangle, Theme.CenterFormat);
+        TextKit.DrawCenter(e.Graphics, Text, Theme.FontHint(), ClientRectangle, Selected ? Theme.OnAccent : Theme.Text);
     }
 
     protected override void OnPaddingChanged(EventArgs e)

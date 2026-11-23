@@ -95,15 +95,15 @@ public sealed class ProductTile : UserControl
 
         var emoji = string.IsNullOrWhiteSpace(Product.Emoji) ? "\uE7BF" : Product.Emoji;
         var emojiFont = string.IsNullOrWhiteSpace(Product.Emoji) ? Theme.IconFont(28) : Theme.Font(22, FontStyle.Bold);
-        var ink = Theme.Brush(dim ? Theme.Disabled : Theme.Text);
-        e.Graphics.DrawString(emoji, emojiFont, ink, new RectangleF(0, Height * 0.08f, Width, Height * 0.38f), Theme.CenterFormat);
+        TextKit.DrawCenter(e.Graphics, emoji, emojiFont, new Rectangle(0, (int)(Height * 0.08f), Width, (int)(Height * 0.38f)), dim ? Theme.Disabled : Theme.Text);
 
         var nameFont = Theme.Font(13, FontStyle.Bold);
-        e.Graphics.DrawString(Product.Name, nameFont, ink, new RectangleF(8, Height * 0.48f, Width - 16, Height * 0.22f), Theme.CenterFormat);
+        TextKit.DrawFit(e.Graphics, Product.Name, nameFont, new Rectangle(8, (int)(Height * 0.48f), Math.Max(1, Width - 16), (int)(Height * 0.22f)), dim ? Theme.Disabled : Theme.Text, wrap: true);
 
-        var priceFont = Theme.Font(13, FontStyle.Bold);
-        var price = Theme.Brush(dim ? Theme.Disabled : Theme.Accent);
-        e.Graphics.DrawString(AbayPOS.Domain.Money.Format(Product.Price), priceFont, price, new RectangleF(0, Height * 0.72f, Width, Height * 0.16f), Theme.CenterFormat);
+        var priceText = AbayPOS.Domain.Money.Format(Product.Price);
+        var priceBounds = new Rectangle(4, (int)(Height * 0.72f), Math.Max(1, Width - 8), (int)(Height * 0.16f));
+        var priceFont = TextKit.FitFont(e.Graphics, priceText, Theme.Font(13, FontStyle.Bold), priceBounds.Width, 10f);
+        TextKit.DrawCenter(e.Graphics, priceText, priceFont, priceBounds, dim ? Theme.Disabled : Theme.Accent);
 
         if (Product.IsOutOfStock)
             DrawBadge(e.Graphics, "Out of stock", Theme.Danger);
@@ -114,12 +114,12 @@ public sealed class ProductTile : UserControl
     private void DrawBadge(Graphics g, string text, Color color)
     {
         var font = Theme.Font(8, FontStyle.Bold);
-        var size = g.MeasureString(text, font);
+        var size = TextKit.Measure(g, text, font);
         var rect = new RectangleF(Width - size.Width - 18, 10, size.Width + 10, 18);
         using var path = Gfx.Round(rect, Theme.ChipRadius);
         var fill = Theme.Brush(color);
         var brush = Theme.Brush(Color.White);
         g.FillPath(fill, path);
-        g.DrawString(text, font, brush, rect, Theme.CenterFormat);
+        TextKit.DrawCenter(g, text, font, Rectangle.Round(rect), Color.White);
     }
 }
