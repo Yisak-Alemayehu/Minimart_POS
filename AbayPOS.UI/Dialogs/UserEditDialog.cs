@@ -4,7 +4,7 @@ using AbayPOS.UI.Theming;
 
 namespace AbayPOS.UI.Dialogs;
 
-public sealed class UserEditDialog : Form
+public sealed class UserEditDialog : DialogForm
 {
     private readonly GlassTextBox _username = new() { Placeholder = "Username" };
     private readonly GlassTextBox _fullName = new() { Placeholder = "Full name" };
@@ -16,12 +16,8 @@ public sealed class UserEditDialog : Form
     public UserEditDialog(string? username, string? fullName, UserRole role, bool create)
     {
         _create = create;
-        Text = create ? "Add user" : "Edit user";
-        FormBorderStyle = FormBorderStyle.None;
-        StartPosition = FormStartPosition.CenterParent;
+        Text = create ? "AbayPOS – Add user" : "AbayPOS – Edit user";
         ClientSize = new Size(400, 360);
-        BackColor = Theme.Base;
-        ShowInTaskbar = false;
         _username.Text = username;
         _username.Enabled = create;
         _fullName.Text = fullName;
@@ -55,15 +51,14 @@ public sealed class UserEditDialog : Form
         surface.Controls.Add(grid);
         Controls.Add(surface);
         Surface.Adopt(this, Theme.Base);
-        Load += (_, _) => GlassHelper.ApplyToWindow(this);
+        AcceptButton = save;
+        CancelButton = cancel;
     }
 
     public string UsernameValue => _username.Text ?? string.Empty;
     public string FullNameValue => _fullName.Text ?? string.Empty;
     public string PasswordValue => _password.Text ?? string.Empty;
     public UserRole RoleValue => _role.SelectedItem is UserRole role ? role : UserRole.Cashier;
-
-    protected override void OnPaintBackground(PaintEventArgs e) => GlassHelper.PaintFormBackground(this, e.Graphics);
 
     private void TrySave()
     {

@@ -4,17 +4,14 @@ using AbayPOS.UI.Theming;
 namespace AbayPOS.UI.Dialogs;
 
 /// <summary>F4 discount: amount in ETB or percent.</summary>
-public sealed class DiscountDialog : Form
+public sealed class DiscountDialog : DialogForm
 {
     private readonly NumericUpDown _value;
     private readonly CheckBox _percent;
 
     public DiscountDialog(decimal current, bool isPercent)
     {
-        Text = "Discount";
-        FormBorderStyle = FormBorderStyle.None;
-        StartPosition = FormStartPosition.CenterParent;
-        ShowInTaskbar = false;
+        Text = "AbayPOS – Discount";
         ClientSize = new Size(380, 240);
         BackColor = Theme.Base;
         var surface = new GlassPanel { Dock = DockStyle.Fill, Padding = new Padding(24) };
@@ -50,12 +47,8 @@ public sealed class DiscountDialog : Form
         Surface.Adopt(this, Theme.Base);
         AcceptButton = ok;
         CancelButton = cancel;
-        Load += (_, _) => GlassHelper.ApplyToWindow(this);
     }
 
     public decimal DiscountValue => _value.Value;
     public bool IsPercent => _percent.Checked;
-
-    protected override void OnPaintBackground(PaintEventArgs e) =>
-        GlassHelper.PaintFormBackground(this, e.Graphics);
 }

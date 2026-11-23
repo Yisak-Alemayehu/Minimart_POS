@@ -4,7 +4,7 @@ using AbayPOS.UI.Theming;
 
 namespace AbayPOS.UI.Dialogs;
 
-public sealed class SupplierEditDialog : Form
+public sealed class SupplierEditDialog : DialogForm
 {
     private readonly GlassTextBox _name = new() { Placeholder = "Name" };
     private readonly GlassTextBox _phone = new() { Placeholder = "Phone" };
@@ -16,12 +16,8 @@ public sealed class SupplierEditDialog : Form
     public SupplierEditDialog(Supplier supplier)
     {
         Supplier = supplier;
-        Text = supplier.Id == 0 ? "Add supplier" : "Edit supplier";
-        FormBorderStyle = FormBorderStyle.None;
-        StartPosition = FormStartPosition.CenterParent;
+        Text = supplier.Id == 0 ? "AbayPOS – Add supplier" : "AbayPOS – Edit supplier";
         ClientSize = new Size(420, 380);
-        BackColor = Theme.Base;
-        ShowInTaskbar = false;
         _name.Text = supplier.Name;
         _phone.Text = supplier.Phone;
         _email.Text = supplier.Email;
@@ -64,10 +60,9 @@ public sealed class SupplierEditDialog : Form
         surface.Controls.Add(grid);
         Controls.Add(surface);
         Surface.Adopt(this, Theme.Base);
-        Load += (_, _) => GlassHelper.ApplyToWindow(this);
+        AcceptButton = save;
+        CancelButton = cancel;
     }
 
     public Supplier Supplier { get; }
-
-    protected override void OnPaintBackground(PaintEventArgs e) => GlassHelper.PaintFormBackground(this, e.Graphics);
 }

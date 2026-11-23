@@ -6,14 +6,11 @@ using AbayPOS.UI.Theming;
 namespace AbayPOS.UI.Dialogs;
 
 /// <summary>UC-05 receipt preview with print or skip.</summary>
-public sealed class ReceiptPreviewDialog : Form
+public sealed class ReceiptPreviewDialog : DialogForm
 {
     public ReceiptPreviewDialog(Sale sale)
     {
-        Text = "Receipt";
-        FormBorderStyle = FormBorderStyle.None;
-        StartPosition = FormStartPosition.CenterParent;
-        ShowInTaskbar = false;
+        Text = "AbayPOS – Receipt";
         ClientSize = new Size(520, 640);
         BackColor = Theme.Base;
         var printer = new ReceiptPrinter();
@@ -53,9 +50,7 @@ public sealed class ReceiptPreviewDialog : Form
         surface.Controls.Add(layout);
         Controls.Add(surface);
         Surface.Adopt(this, Theme.Base);
-        Load += (_, _) => GlassHelper.ApplyToWindow(this);
+        CancelButton = skip;
+        AcceptButton = print;
     }
-
-    protected override void OnPaintBackground(PaintEventArgs e) =>
-        GlassHelper.PaintFormBackground(this, e.Graphics);
 }

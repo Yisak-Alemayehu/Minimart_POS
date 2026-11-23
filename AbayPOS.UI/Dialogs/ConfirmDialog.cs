@@ -4,15 +4,11 @@ using AbayPOS.UI.Theming;
 namespace AbayPOS.UI.Dialogs;
 
 /// <summary>Frosted confirm used only for destructive actions.</summary>
-public sealed class ConfirmDialog : Form
+public sealed class ConfirmDialog : DialogForm
 {
     private ConfirmDialog(string title, string message, string confirmText, bool danger)
     {
         Text = title;
-        FormBorderStyle = FormBorderStyle.None;
-        StartPosition = FormStartPosition.CenterParent;
-        ShowInTaskbar = false;
-        AutoScaleMode = AutoScaleMode.Dpi;
         ClientSize = new Size(420, 220);
         BackColor = Theme.Base;
         DoubleBuffered = true;
@@ -45,11 +41,7 @@ public sealed class ConfirmDialog : Form
         Surface.Adopt(this, Theme.Base);
         AcceptButton = ok;
         CancelButton = cancel;
-        Load += (_, _) => GlassHelper.ApplyToWindow(this);
     }
-
-    protected override void OnPaintBackground(PaintEventArgs e) =>
-        GlassHelper.PaintFormBackground(this, e.Graphics);
 
     public static bool Ask(IWin32Window owner, string title, string message, string confirmText = "Yes", bool danger = true)
     {

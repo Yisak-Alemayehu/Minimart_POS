@@ -41,10 +41,10 @@ public sealed class CashierForm : ThemedForm
     {
         _session = session;
         _cart = ServiceLocator.Sales.CreateCart();
-        Text = "AbayPOS | Cashier Sales";
+        Text = $"AbayPOS – Register ({session.User.FullName})";
         Name = nameof(CashierForm);
+        MinimumSize = new Size(Theme.MinimumWidth, Theme.MinimumHeight);
         ClientSize = new Size(1366, 768);
-        MaximizedBounds = Screen.PrimaryScreen?.WorkingArea ?? Rectangle.Empty;
         WindowState = FormWindowState.Maximized;
         _salesNav = CreateNavButton("\uE80F", "Sales", true);
         _historyNav = CreateNavButton("\uE81C", "History", false);
@@ -182,14 +182,11 @@ public sealed class CashierForm : ThemedForm
 
     private Control BuildTopBar()
     {
-        var bar = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 4, BackColor = Theme.Base };
+        var bar = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, BackColor = Theme.Base };
         bar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160));
         bar.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         bar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 220));
-        bar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 146));
         var title = new Label { Text = "Abay POS", Dock = DockStyle.Fill, ForeColor = Theme.Text, BackColor = Theme.Base, Font = Theme.Font(18, FontStyle.Bold), TextAlign = ContentAlignment.MiddleLeft };
-        title.MouseDown += DragWindow;
-        bar.MouseDown += DragWindow;
         bar.Controls.Add(title, 0, 0);
         var search = new GlassPanel { Dock = DockStyle.Fill, Margin = new Padding(8, 10, 8, 10), Radius = 18, FillColor = Theme.Search };
         var searchText = new Label
@@ -212,7 +209,6 @@ public sealed class CashierForm : ThemedForm
         _clockLabel.Font = Theme.Font(10, FontStyle.Bold);
         _clockLabel.TextAlign = ContentAlignment.MiddleRight;
         bar.Controls.Add(_clockLabel, 2, 0);
-        bar.Controls.Add(CreateWindowButtons(this), 3, 0);
         return bar;
     }
 

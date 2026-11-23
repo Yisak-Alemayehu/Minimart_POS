@@ -42,7 +42,6 @@ public static class Surface
     private static bool Skip(Control control) =>
         control is Controls.RoundButton
             or Controls.ChipButton
-            or Controls.WindowButton
             or Controls.ProductTile
             or Controls.GlassTextBox
             or Controls.LoginField

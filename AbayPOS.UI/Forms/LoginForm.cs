@@ -44,12 +44,12 @@ public sealed class LoginForm : ThemedForm
         "last-user.txt");
 
     public LoginForm()
+        : base(sizable: false)
     {
-        Text = "AbayPOS";
-        MinimumSize = new Size(1100, 700);
-        ClientSize = new Size(1280, 800);
-        WindowState = FormWindowState.Maximized;
-        MaximizedBounds = Screen.PrimaryScreen?.WorkingArea ?? Rectangle.Empty;
+        Text = "AbayPOS – Sign in";
+        MaximizeBox = false;
+        ClientSize = new Size(1100, 720);
+        MinimumSize = new Size(960, 640);
         AcceptButton = _submit;
         Build();
         LoadRemembered();
@@ -59,13 +59,6 @@ public sealed class LoginForm : ThemedForm
 
     private void Build()
     {
-        var chrome = CreateWindowButtons(this);
-        chrome.Dock = DockStyle.None;
-        chrome.Size = new Size(146, 48);
-        chrome.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-        chrome.BackColor = Theme.Base;
-        Controls.Add(chrome);
-
         var root = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
@@ -163,12 +156,6 @@ public sealed class LoginForm : ThemedForm
         host.Controls.Add(card);
         root.Controls.Add(host, 1, 0);
         Controls.Add(root);
-        chrome.BringToFront();
-        Layout += (_, _) =>
-        {
-            chrome.Left = Math.Max(0, ClientSize.Width - chrome.Width - 12);
-            chrome.Top = 8;
-        };
         Shown += (_, _) => _username.Focus();
     }
 

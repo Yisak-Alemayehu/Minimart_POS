@@ -5,7 +5,7 @@ using AbayPOS.UI.Theming;
 namespace AbayPOS.UI.Dialogs;
 
 /// <summary>Add/edit product with inline validation.</summary>
-public sealed class ProductEditDialog : Form
+public sealed class ProductEditDialog : DialogForm
 {
     private readonly GlassTextBox _name = new() { Placeholder = "Name" };
     private readonly GlassTextBox _barcode = new() { Placeholder = "Barcode" };
@@ -21,12 +21,8 @@ public sealed class ProductEditDialog : Form
     public ProductEditDialog(Product product, IReadOnlyList<Supplier> suppliers)
     {
         Product = product;
-        Text = product.Id == 0 ? "Add product" : "Edit product";
-        FormBorderStyle = FormBorderStyle.None;
-        StartPosition = FormStartPosition.CenterParent;
+        Text = product.Id == 0 ? "AbayPOS – Add product" : "AbayPOS – Edit product";
         ClientSize = new Size(460, 560);
-        BackColor = Theme.Base;
-        ShowInTaskbar = false;
         var surface = new GlassPanel { Dock = DockStyle.Fill, Padding = new Padding(24) };
         var grid = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 12, BackColor = Theme.Base };
         for (var i = 0; i < 11; i++)
@@ -82,12 +78,10 @@ public sealed class ProductEditDialog : Form
         Controls.Add(surface);
         Surface.Adopt(this, Theme.Base);
         AcceptButton = save;
-        Load += (_, _) => GlassHelper.ApplyToWindow(this);
+        CancelButton = cancel;
     }
 
     public Product Product { get; }
-
-    protected override void OnPaintBackground(PaintEventArgs e) => GlassHelper.PaintFormBackground(this, e.Graphics);
 
     private void TrySave()
     {

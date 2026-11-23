@@ -20,11 +20,10 @@ public sealed class ManagerForm : ThemedForm
 
     public ManagerForm(Session session)
     {
-        PreferMica = true;
         _session = session;
-        Text = "AbayPOS | Manager";
+        Text = "AbayPOS – Manager";
+        MinimumSize = new Size(Theme.MinimumWidth, Theme.MinimumHeight);
         ClientSize = new Size(1366, 768);
-        MaximizedBounds = Screen.PrimaryScreen?.WorkingArea ?? Rectangle.Empty;
         WindowState = FormWindowState.Maximized;
         Build();
         _timer.Tick += (_, _) => _clock.Text = DateTime.Now.ToString("hh:mm tt");
@@ -107,21 +106,17 @@ public sealed class ManagerForm : ThemedForm
 
     private Control BuildTopBar()
     {
-        var bar = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 4, BackColor = Theme.Base };
+        var bar = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, BackColor = Theme.Base };
         bar.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         bar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 180));
         bar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 88));
-        bar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 146));
         _title.Text = "Dashboard";
         _title.Dock = DockStyle.Fill;
         _title.Font = Theme.Font(18, FontStyle.Bold);
         _title.ForeColor = Theme.Text;
         _title.BackColor = Theme.Base;
         _title.TextAlign = ContentAlignment.MiddleLeft;
-        var title = _title;
-        title.MouseDown += DragWindow;
-        bar.MouseDown += DragWindow;
-        bar.Controls.Add(title, 0, 0);
+        bar.Controls.Add(_title, 0, 0);
         var name = new Label { Text = _session.User.FullName, Dock = DockStyle.Fill, ForeColor = Theme.Text, BackColor = Theme.Base, Font = Theme.Font(9, FontStyle.Bold), TextAlign = ContentAlignment.MiddleRight };
         var clock = _clock;
         clock.Text = DateTime.Now.ToString("hh:mm tt");
@@ -132,7 +127,6 @@ public sealed class ManagerForm : ThemedForm
         clock.TextAlign = ContentAlignment.MiddleRight;
         bar.Controls.Add(name, 1, 0);
         bar.Controls.Add(clock, 2, 0);
-        bar.Controls.Add(CreateWindowButtons(this), 3, 0);
         return bar;
     }
 

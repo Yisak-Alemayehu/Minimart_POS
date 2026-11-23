@@ -9,8 +9,14 @@
     <AssemblyName>AbayPOS</AssemblyName>
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Resources\abaypos.ico</ApplicationIcon>
     <ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>
   </PropertyGroup>
+  <ItemGroup>
+    <Content Include="Resources\abaypos.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AbayPOS.Business\AbayPOS.Business.csproj" />
     <ProjectReference Include="..\AbayPOS.Domain\AbayPOS.Domain.csproj" />

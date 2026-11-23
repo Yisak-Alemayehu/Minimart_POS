@@ -7,7 +7,7 @@ using AbayPOS.UI.Theming;
 namespace AbayPOS.UI.Dialogs;
 
 /// <summary>UC-04 frosted payment: Cash / Mobile Money, quick amounts, live change.</summary>
-public sealed class PaymentDialog : Form
+public sealed class PaymentDialog : DialogForm
 {
     private readonly decimal _total;
     private readonly NumericUpDown _amount;
@@ -21,11 +21,7 @@ public sealed class PaymentDialog : Form
     {
         _total = total;
         AmountPaid = total;
-        Text = "Payment";
-        FormBorderStyle = FormBorderStyle.None;
-        StartPosition = FormStartPosition.CenterParent;
-        ShowInTaskbar = false;
-        AutoScaleMode = AutoScaleMode.Dpi;
+        Text = "AbayPOS – Payment";
         ClientSize = new Size(480, 460);
         BackColor = Theme.Base;
         KeyPreview = true;
@@ -96,15 +92,11 @@ public sealed class PaymentDialog : Form
         Surface.Adopt(this, Theme.Base);
         AcceptButton = _confirm;
         CancelButton = cancel;
-        Load += (_, _) => GlassHelper.ApplyToWindow(this);
         UpdateChange();
     }
 
     public PaymentRequest Request => new() { Method = _method, AmountPaid = AmountPaid };
     public decimal AmountPaid { get; private set; }
-
-    protected override void OnPaintBackground(PaintEventArgs e) =>
-        GlassHelper.PaintFormBackground(this, e.Graphics);
 
     private void SetMethod(PaymentMethod method)
     {
