@@ -7,7 +7,7 @@ using AbayPOS.UI.Theming;
 
 namespace AbayPOS.UI.Forms;
 
-/// <summary>UC-01 sign-in. Blue brand pane beside a white card.</summary>
+/// <summary>UC-01 sign-in. One card centered on the page.</summary>
 public sealed class LoginForm : ThemedForm
 {
     private readonly LoginField _username = new("Username", "Enter your username", false)
@@ -62,20 +62,18 @@ public sealed class LoginForm : ThemedForm
         var root = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            ColumnCount = 2,
+            ColumnCount = 1,
             BackColor = Theme.Base,
-            Padding = new Padding(28)
+            Padding = new Padding(24)
         };
-        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 46));
-        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 54));
-        root.Controls.Add(new BrandPane { Dock = DockStyle.Fill, Margin = new Padding(0, 0, 16, 0) }, 0, 0);
+        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
 
         var host = new Panel { Dock = DockStyle.Fill, BackColor = Theme.Base };
         var card = new GlassPanel
         {
-            Size = new Size(460, 620),
+            Size = new Size(400, 620),
             FillColor = Theme.Card,
-            Padding = new Padding(36, 28, 36, 24),
+            Padding = new Padding(24),
             Anchor = AnchorStyles.None
         };
         host.Resize += (_, _) =>
@@ -103,7 +101,7 @@ public sealed class LoginForm : ThemedForm
         body.Controls.Add(new MarkLabel(), 0, 0);
         body.Controls.Add(new Label
         {
-            Text = "Sign in to the register",
+            Text = "Minimart point of sale",
             Dock = DockStyle.Fill,
             TextAlign = ContentAlignment.TopCenter,
             ForeColor = Theme.TextSecondary,
@@ -156,6 +154,12 @@ public sealed class LoginForm : ThemedForm
         host.Controls.Add(card);
         root.Controls.Add(host, 1, 0);
         Controls.Add(root);
+        KeyPreview = true;
+        KeyUp += (_, _) =>
+        {
+            if (Control.IsKeyLocked(Keys.CapsLock))
+                _password.ErrorText = "Caps Lock is on.";
+        };
         Shown += (_, _) => _username.Focus();
     }
 

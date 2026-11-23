@@ -92,6 +92,11 @@ public sealed class PaymentDialog : DialogForm
         Surface.Adopt(this, Theme.Base);
         AcceptButton = _confirm;
         CancelButton = cancel;
+        Shown += (_, _) =>
+        {
+            _amount.Focus();
+            _amount.Select(0, _amount.Text.Length);
+        };
         UpdateChange();
     }
 
@@ -110,9 +115,10 @@ public sealed class PaymentDialog : DialogForm
     private void UpdateChange()
     {
         AmountPaid = _amount.Value;
-        var change = Math.Max(0, _amount.Value - _total);
-        _change.Text = Money.Format(change);
-        _confirm.Enabled = _amount.Value >= _total;
+        var shortfall = _amount.Value < _total;
+        _change.ForeColor = shortfall ? Theme.Danger : Theme.Success;
+        _change.Text = shortfall ? "Insufficient" : Money.Format(_amount.Value - _total);
+        _confirm.Enabled = !shortfall;
     }
 
     private void Confirm()

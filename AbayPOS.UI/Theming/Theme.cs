@@ -2,60 +2,66 @@ using System.Drawing.Text;
 
 namespace AbayPOS.UI.Theming;
 
-/// <summary>Light retail visual system. Every control color is opaque.</summary>
+/// <summary>Retail visual system. Colors come from <see cref="Colors"/>; dark is the default.</summary>
 public static class Theme
 {
-    public static readonly Color Base = Color.FromArgb(0xF3, 0xF6, 0xFB);
-    public static readonly Color Card = Color.White;
-    public static readonly Color GlassSolid = Card;
-    public static readonly Color GlassFill = Card;
-    public static readonly Color Sidebar = Color.White;
-    public static readonly Color SidebarGlass = Sidebar;
-    public static readonly Color CartSurface = Color.White;
-    public static readonly Color NavRaised = Color.FromArgb(0xE8, 0xF0, 0xFE);
-    public static readonly Color NavGlass = NavRaised;
-    public static readonly Color CancelGlass = Color.FromArgb(0xF1, 0xF5, 0xF9);
-    public static readonly Color Search = Color.White;
-    public static readonly Color SearchGlass = Search;
-    public static readonly Color Tile = Color.White;
-    public static readonly Color TileHover = Color.FromArgb(0xF8, 0xFA, 0xFC);
-    public static readonly Color TileMuted = Color.FromArgb(0xF1, 0xF5, 0xF9);
-    public static readonly Color Line = Color.FromArgb(0xE2, 0xE8, 0xF0);
-    public static readonly Color GlassBorder = Line;
-    public static readonly Color Highlight = NavRaised;
-    public static readonly Color Accent = Color.FromArgb(0x2F, 0x6F, 0xED);
-    public static readonly Color AccentHover = Color.FromArgb(0x4C, 0x84, 0xF5);
-    public static readonly Color AccentPressed = Color.FromArgb(0x1D, 0x4E, 0xD8);
-    public static readonly Color NavActive = Accent;
-    public static readonly Color OnAccent = Color.White;
-    public static readonly Color Brand = Color.FromArgb(0x1D, 0x4E, 0xD8);
-    public static readonly Color Success = Color.FromArgb(0x16, 0xA3, 0x4A);
-    public static readonly Color Warning = Color.FromArgb(0xD9, 0x77, 0x06);
-    public static readonly Color Danger = Color.FromArgb(0xDC, 0x26, 0x26);
-    public static readonly Color Text = Color.FromArgb(0x0F, 0x17, 0x2A);
-    public static readonly Color TextSecondary = Color.FromArgb(0x64, 0x74, 0x8B);
-    public static readonly Color InputFill = Color.FromArgb(0xF8, 0xFA, 0xFC);
-    public static readonly Color Selection = Color.FromArgb(0xDB, 0xEA, 0xFE);
-    public static readonly Color GridLine = Color.FromArgb(0xE2, 0xE8, 0xF0);
-    public static readonly Color Overlay = Color.FromArgb(0xE2, 0xE8, 0xF0);
-    public static readonly Color FocusRing = Accent;
-    public static readonly Color Shadow = Color.FromArgb(0xE2, 0xE8, 0xF0);
-    public static readonly Color Disabled = Color.FromArgb(0x94, 0xA3, 0xB8);
-    public static readonly Color BadgeFill = Color.FromArgb(0xE8, 0xF0, 0xFE);
-    public static readonly Color BadgeBorder = Color.FromArgb(0xCB, 0xD5, 0xE1);
+    /// <summary>Change this one assignment to <see cref="Palette.Light"/> for the light set.</summary>
+    public static Palette Colors { get; set; } = Palette.Dark;
+
+    public static Color Base => Colors.Background;
+    public static Color Card => Colors.Surface;
+    public static Color GlassSolid => Colors.Surface;
+    public static Color GlassFill => Colors.Surface;
+    public static Color Sidebar => Colors.Surface;
+    public static Color SidebarGlass => Colors.Surface;
+    public static Color CartSurface => Colors.Surface;
+    public static Color NavRaised => Colors.Raised;
+    public static Color NavGlass => Colors.Raised;
+    public static Color CancelGlass => Colors.Raised;
+    public static Color Search => Colors.Raised;
+    public static Color SearchGlass => Colors.Raised;
+    public static Color Tile => Colors.Surface;
+    public static Color TileHover => Colors.Raised;
+    public static Color TileMuted => Colors.Background;
+    public static Color Line => Colors.Border;
+    public static Color GlassBorder => Colors.Border;
+    public static Color Highlight => Colors.Raised;
+    public static Color Accent => Colors.Accent;
+    public static Color AccentHover => Colors.AccentHover;
+    public static Color AccentPressed => Colors.AccentPressed;
+    public static Color NavActive => Colors.Accent;
+    public static Color OnAccent => Colors.OnAccent;
+    public static Color Brand => Colors.AccentPressed;
+    public static Color Success => Colors.Success;
+    public static Color Warning => Colors.Warning;
+    public static Color Danger => Colors.Danger;
+    public static Color Info => Colors.Info;
+    public static Color Text => Colors.Text;
+    public static Color TextSecondary => Colors.TextSecondary;
+    public static Color InputFill => Colors.Raised;
+    public static Color Selection => Colors.Raised;
+    public static Color GridLine => Colors.Border;
+    public static Color Overlay => Colors.Border;
+    public static Color FocusRing => Colors.Accent;
+    public static Color Shadow => Colors.Border;
+    public static Color Disabled => Colors.Disabled;
+    public static Color BadgeFill => Colors.Raised;
+    public static Color BadgeBorder => Colors.Border;
 
     public const int Space = 8;
-    public const int SidebarWidth = 228;
-    public const int TopBarHeight = 72;
+    public const int SidebarWidth = 240;
+    public const int CashierRail = 72;
+    public const int CartWidth = 420;
+    public const int TopBarHeight = 64;
     public const int MinimumWidth = 1280;
     public const int MinimumHeight = 720;
-    public const int PayButtonHeight = 52;
+    public const int PayButtonHeight = 56;
     public const int TouchTarget = 44;
-    public const int PanelRadius = 16;
-    public const int ButtonRadius = 12;
-    public const int ChipRadius = 10;
-    public const int InputRadius = 12;
-    public const int AnimationMs = 160;
+    public const int PanelRadius = 12;
+    public const int ButtonRadius = 8;
+    public const int ChipRadius = 999;
+    public const int InputRadius = 8;
+    public const int AnimationMs = 150;
 
     public static readonly StringFormat CenterFormat = new()
     {
@@ -87,10 +93,11 @@ public static class Theme
     private static string? _family;
     private static string? _iconFamily;
 
-    public static Font FontHeading() => Font(18f, FontStyle.Bold);
-    public static Font FontTotal() => Font(28f, FontStyle.Bold);
-    public static Font FontBody() => Font(12.5f);
-    public static Font FontHint() => Font(10f);
+    public static Font FontHeading() => Font(20f, FontStyle.Bold);
+    public static Font FontTotal() => Font(32f, FontStyle.Bold);
+    public static Font FontSection() => Font(15f, FontStyle.Bold);
+    public static Font FontBody() => Font(13f);
+    public static Font FontHint() => Font(11f);
 
     public static Font Font(float size, FontStyle style = FontStyle.Regular) =>
         CachedFont(FontFamilyName(), size, style);

@@ -10,7 +10,7 @@ namespace AbayPOS.UI.Controls;
 /// <summary>Owner-drawn cart. Only visible rows are painted. Hit-tests − / + / ×.</summary>
 public sealed class CartList : Control
 {
-    public const int RowHeight = 52;
+    public const int RowHeight = 56;
     private readonly VScrollBar _scroll = new();
     private IReadOnlyList<CartLine> _lines = [];
     private int _selected;
