@@ -31,7 +31,7 @@ public sealed class CashierForm : ThemedForm
     private readonly Label _lookupMessage = new();
     private readonly Label _subtotalValue = new();
     private readonly Label _discountValue = new();
-    private readonly Label _totalValue = new();
+    private readonly FittedText _totalValue = new() { Money = true, Align = ContentAlignment.MiddleRight, StartSize = 32f, MinSize = 20f, ForeColor = Theme.Accent };
     private readonly Label _itemCount = new();
     private readonly Label _clockLabel = new();
     private readonly Label _cashierLabel = new();
@@ -145,10 +145,10 @@ public sealed class CashierForm : ThemedForm
     {
         var sidebar = new GlassPanel { Dock = DockStyle.Fill, Margin = new Padding(0, 0, 8, 0), Padding = new Padding(8, 12, 8, 12), FillColor = Theme.Sidebar };
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, BackColor = Theme.Sidebar };
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, Theme.Scale(48)));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, Theme.Scale(48)));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, Theme.Scale(48)));
         var tips = new ToolTip();
         _salesNav.Click += (_, _) => ShowSales();
         _historyNav.Click += (_, _) => ShowHistory();
@@ -183,10 +183,14 @@ public sealed class CashierForm : ThemedForm
     private Control BuildStatusStrip()
     {
         var bar = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, BackColor = Theme.Base };
-        bar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 220));
+        bar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         bar.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        bar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 180));
+        bar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         _cashierLabel.Text = _session.User.FullName;
+        _cashierLabel.AutoSize = true;
+        _cashierLabel.AutoEllipsis = true;
+        _cashierLabel.MaximumSize = new Size(Theme.Scale(220), Theme.Scale(28));
+        new ToolTip().SetToolTip(_cashierLabel, _session.User.FullName);
         _cashierLabel.Dock = DockStyle.Fill;
         _cashierLabel.ForeColor = Theme.TextSecondary;
         _cashierLabel.Font = Theme.FontHint();
@@ -213,7 +217,7 @@ public sealed class CashierForm : ThemedForm
     {
         var content = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, Padding = new Padding(0, 8, 0, 0), BackColor = Theme.Base };
         content.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        content.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, Theme.CartWidth));
+        content.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, Theme.Scale(Theme.CartWidth)));
         content.Controls.Add(BuildProductPanel(), 0, 0);
         content.Controls.Add(BuildCartPanel(), 1, 0);
         _salesPage.Controls.Add(content);
@@ -232,6 +236,7 @@ public sealed class CashierForm : ThemedForm
         _historyGrid.Columns.Add("Time", "Time");
         _historyGrid.Columns.Add("Total", "Total");
         _historyGrid.Columns.Add("Status", "Status");
+        GridTheme.Balance(_historyGrid, null, "Total");
         layout.Controls.Add(_historyGrid, 0, 1);
         panel.Controls.Add(layout);
         _historyPage.Controls.Add(panel);
@@ -241,13 +246,13 @@ public sealed class CashierForm : ThemedForm
     {
         var panel = new GlassPanel { Dock = DockStyle.Fill, Margin = new Padding(0, 0, 8, 0), Padding = new Padding(16, 14, 16, 12) };
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 4, BackColor = Theme.Base };
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 56));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 22));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, Theme.Scale(56)));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, Theme.Scale(40)));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, Theme.Scale(22)));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         var scan = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, BackColor = Theme.Base };
         scan.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        scan.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 72));
+        scan.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, Theme.Scale(72)));
         _barcodeBox.Dock = DockStyle.Fill;
         _barcodeBox.Placeholder = "Scan barcode or search product";
         _barcodeBox.KeyDown += BarcodeKeyDown;
@@ -278,12 +283,12 @@ public sealed class CashierForm : ThemedForm
     {
         var panel = new GlassPanel { Dock = DockStyle.Fill, Margin = new Padding(8, 0, 0, 0), Padding = new Padding(16, 14, 16, 12) };
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 6, BackColor = Theme.Base };
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 42));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, Theme.Scale(42)));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 120));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, Theme.PayButtonHeight + 8));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 8));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, Theme.Scale(148)));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, Theme.Scale(Theme.PayButtonHeight + 8)));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, Theme.Scale(48)));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, Theme.Scale(8)));
         _saleNoLabel.Text = "Current sale " + _salePreview;
         _saleNoLabel.Dock = DockStyle.Fill;
         _saleNoLabel.ForeColor = Theme.OnAccent;
@@ -313,8 +318,8 @@ public sealed class CashierForm : ThemedForm
     private Control BuildSummary()
     {
         var summary = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 4, BackColor = Theme.Base };
-        summary.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 55));
-        summary.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45));
+        summary.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        summary.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         summary.Controls.Add(Muted("Subtotal"), 0, 0);
         summary.Controls.Add(Bind(_subtotalValue, 12), 1, 0);
         var discountLabel = Muted("Discount  F4");
@@ -323,8 +328,9 @@ public sealed class CashierForm : ThemedForm
         summary.Controls.Add(discountLabel, 0, 1);
         _discountValue.ForeColor = Theme.Accent;
         summary.Controls.Add(Bind(_discountValue, 12), 1, 1);
-        summary.Controls.Add(new Label { Text = "TOTAL", Dock = DockStyle.Fill, ForeColor = Theme.Text, Font = Theme.Font(15, FontStyle.Bold), TextAlign = ContentAlignment.MiddleLeft }, 0, 2);
-        summary.Controls.Add(Bind(_totalValue, 32, FontStyle.Bold), 1, 2);
+        summary.Controls.Add(new Label { Text = "TOTAL", AutoSize = true, ForeColor = Theme.Text, Font = Theme.Font(15, FontStyle.Bold), TextAlign = ContentAlignment.MiddleLeft, Dock = DockStyle.Fill }, 0, 2);
+        _totalValue.Dock = DockStyle.Fill;
+        summary.Controls.Add(_totalValue, 1, 2);
         _itemCount.ForeColor = Theme.TextSecondary;
         _itemCount.Font = Theme.FontHint();
         _itemCount.Dock = DockStyle.Fill;
@@ -499,7 +505,7 @@ public sealed class CashierForm : ThemedForm
         _cartList.SetLines(_cart.Lines, select, flash);
         _subtotalValue.Text = Money.Format(_cart.Subtotal);
         _discountValue.Text = Money.FormatDiscount(_cart.DiscountAmount);
-        _totalValue.Text = Money.Format(_cart.Total);
+        _totalValue.SetValue(Money.Format(_cart.Total));
         _itemCount.Text = _cart.ItemCount == 0 ? string.Empty : $"{_cart.ItemCount} items";
         _payButton.Enabled = _cart.Total > 0;
         _payButton.Text = _cart.Total > 0 ? "Pay" : "Pay";
@@ -620,12 +626,14 @@ public sealed class CashierForm : ThemedForm
         if (_productsFlow.ClientSize.Width <= 0)
             return;
         var available = Math.Max(1, _productsFlow.ClientSize.Width - _productsFlow.Padding.Horizontal);
-        var columns = Math.Max(2, available / 172);
-        var width = Math.Max(160, (available - columns * 12) / columns);
+        var gap = Theme.Scale(12);
+        var preferred = Theme.Scale(180);
+        var columns = Math.Max(2, available / preferred);
+        var width = Math.Clamp((available - columns * gap) / columns, Theme.Scale(150), Theme.Scale(200));
         foreach (Control control in _productsFlow.Controls)
         {
             if (control is ProductTile)
-                control.Size = new Size(width, 140);
+                control.Size = new Size(width, Theme.Scale(140));
         }
     }
 

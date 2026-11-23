@@ -29,16 +29,14 @@ public sealed class PaymentDialog : DialogForm
 
         var surface = new GlassPanel { Dock = DockStyle.Fill, Padding = new Padding(26), FillColor = Theme.GlassFill };
         var grid = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 8, BackColor = Theme.Base };
-        grid.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
-        grid.RowStyles.Add(new RowStyle(SizeType.Absolute, 52));
-        grid.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
-        grid.RowStyles.Add(new RowStyle(SizeType.Absolute, 52));
-        grid.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));
-        grid.RowStyles.Add(new RowStyle(SizeType.Absolute, 24));
+        for (var i = 0; i < 6; i++)
+            grid.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         grid.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        grid.RowStyles.Add(new RowStyle(SizeType.Absolute, 54));
+        grid.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         grid.Controls.Add(new Label { Text = "Take payment", Dock = DockStyle.Fill, ForeColor = Theme.Text, Font = Theme.FontHeading(), TextAlign = ContentAlignment.MiddleLeft }, 0, 0);
-        grid.Controls.Add(new Label { Text = Money.Format(_total), Dock = DockStyle.Fill, ForeColor = Theme.Accent, Font = Theme.FontTotal(), TextAlign = ContentAlignment.MiddleLeft }, 0, 1);
+        var due = new FittedText { Dock = DockStyle.Fill, ForeColor = Theme.Accent, StartSize = 32f, MinSize = 20f, Money = true, MinimumSize = new Size(Theme.Scale(160), Theme.Scale(40)) };
+        due.SetValue(Money.Format(_total));
+        grid.Controls.Add(due, 0, 1);
 
         var tabs = new FlowLayoutPanel { Dock = DockStyle.Fill, BackColor = Theme.Base };
         _cashTab = Tab("Cash", true);
@@ -54,7 +52,8 @@ public sealed class PaymentDialog : DialogForm
             Dock = DockStyle.Fill,
             DecimalPlaces = 2,
             Minimum = 0,
-            Maximum = 100000000,
+            ThousandsSeparator = true,
+            Maximum = 10_000_000,
             Value = Math.Min(total, 100000000),
             BackColor = Theme.InputFill,
             ForeColor = Theme.Text,

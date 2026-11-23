@@ -61,10 +61,12 @@ internal sealed class SalesHistoryPage : UserControl
         _grid.Columns.Add("Cashier", "Cashier");
         _grid.Columns.Add("Total", "Total");
         _grid.Columns.Add("Status", "Status");
+        GridTheme.Balance(_grid, "Cashier", "Total");
         _grid.SelectionChanged += (_, _) => ShowItems();
         _items.Columns.Add("Item", "Item");
         _items.Columns.Add("Qty", "Qty");
         _items.Columns.Add("Total", "Total");
+        GridTheme.Balance(_items, "Item", "Qty", "Total");
         layout.Controls.Add(_grid, 0, 2);
         layout.Controls.Add(_items, 0, 3);
         panel.Controls.Add(layout);

@@ -16,6 +16,7 @@ public class DialogForm : Form
         Font = Theme.FontBody();
         DoubleBuffered = true;
         KeyPreview = true;
+        AutoScroll = true;
         Icon = AppIcon.Load();
     }
 

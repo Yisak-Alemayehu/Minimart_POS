@@ -16,9 +16,9 @@ public sealed class ConfirmDialog : DialogForm
 
         var surface = new GlassPanel { Dock = DockStyle.Fill, Padding = new Padding(24) };
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 3, BackColor = Theme.Base };
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 52));
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         layout.Controls.Add(new Label { Text = title, Dock = DockStyle.Fill, Font = Theme.FontHeading(), ForeColor = Theme.Text, TextAlign = ContentAlignment.MiddleLeft }, 0, 0);
         layout.Controls.Add(new Label { Text = message, Dock = DockStyle.Fill, Font = Theme.FontBody(), ForeColor = Theme.TextSecondary }, 0, 1);
         var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft, BackColor = Theme.Base };

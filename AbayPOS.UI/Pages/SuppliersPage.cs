@@ -42,6 +42,7 @@ internal sealed class SuppliersPage : UserControl
         _grid.Columns.Add("Phone", "Phone");
         _grid.Columns.Add("Email", "Email");
         _grid.Columns.Add("Active", "Active");
+        GridTheme.Balance(_grid, "Name");
         layout.Controls.Add(_grid, 0, 2);
         panel.Controls.Add(layout);
         Controls.Add(panel);

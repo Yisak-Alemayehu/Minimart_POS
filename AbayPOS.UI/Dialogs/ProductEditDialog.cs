@@ -22,13 +22,22 @@ public sealed class ProductEditDialog : DialogForm
     {
         Product = product;
         Text = product.Id == 0 ? "AbayPOS – Add product" : "AbayPOS – Edit product";
-        ClientSize = new Size(460, 560);
-        var surface = new GlassPanel { Dock = DockStyle.Fill, Padding = new Padding(24) };
-        var grid = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 12, BackColor = Theme.Base };
-        for (var i = 0; i < 11; i++)
-            grid.RowStyles.Add(new RowStyle(SizeType.Absolute, i is 0 or 10 ? 40 : 44));
-        grid.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        grid.Controls.Add(new Label { Text = Text, Font = Theme.FontHeading(), ForeColor = Theme.Text, Dock = DockStyle.Fill }, 0, 0);
+        AutoScroll = true;
+        MinimumSize = new Size(Theme.Scale(420), Theme.Scale(480));
+        ClientSize = new Size(Theme.Scale(460), Theme.Scale(640));
+        var surface = new GlassPanel { Dock = DockStyle.Fill, Padding = new Padding(Theme.Scale(24)) };
+        var grid = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, BackColor = Theme.Base };
+        var row = 0;
+        void Field(string caption, Control input)
+        {
+            grid.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            grid.Controls.Add(new Label { Text = caption, AutoSize = true, ForeColor = Theme.TextSecondary, Font = Theme.FontHint(), Margin = new Padding(0, 8, 0, 2) }, 0, row++);
+            input.Dock = DockStyle.Fill;
+            input.Margin = new Padding(0, 0, 0, 4);
+            input.MinimumSize = new Size(Theme.Scale(180), Theme.Scale(32));
+            grid.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            grid.Controls.Add(input, 0, row++);
+        }
         _name.Text = product.Name;
         _barcode.Text = product.Barcode;
         _category.Text = product.Category;
@@ -56,16 +65,17 @@ public sealed class ProductEditDialog : DialogForm
             }
         }
 
-        Add(grid, 1, _name);
-        Add(grid, 2, _barcode);
-        Add(grid, 3, _category);
-        Add(grid, 4, _emoji);
-        Add(grid, 5, _price);
-        Add(grid, 6, _cost);
-        Add(grid, 7, _stock);
-        Add(grid, 8, _reorder);
-        Add(grid, 9, _supplier);
-        grid.Controls.Add(_error, 0, 10);
+        Field("Name", _name);
+        Field("Barcode", _barcode);
+        Field("Category", _category);
+        Field("Emoji", _emoji);
+        Field("Price (ETB)", _price);
+        Field("Cost (ETB)", _cost);
+        Field("Stock", _stock);
+        Field("Reorder level", _reorder);
+        Field("Supplier", _supplier);
+        grid.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        grid.Controls.Add(_error, 0, row++);
         var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft, BackColor = Theme.Base };
         var save = new RoundButton { Text = "Save", Width = 120, Height = 44, IsPrimary = true };
         save.Click += (_, _) => TrySave();
@@ -73,7 +83,8 @@ public sealed class ProductEditDialog : DialogForm
         cancel.Click += (_, _) => { DialogResult = DialogResult.Cancel; Close(); };
         buttons.Controls.Add(save);
         buttons.Controls.Add(cancel);
-        grid.Controls.Add(buttons, 0, 11);
+        grid.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        grid.Controls.Add(buttons, 0, row);
         surface.Controls.Add(grid);
         Controls.Add(surface);
         Surface.Adopt(this, Theme.Base);
@@ -104,16 +115,12 @@ public sealed class ProductEditDialog : DialogForm
         Close();
     }
 
-    private static void Add(TableLayoutPanel grid, int row, Control control)
-    {
-        control.Dock = DockStyle.Fill;
-        grid.Controls.Add(control, 0, row);
-    }
-
     private static NumericUpDown MoneyBox() => new()
     {
         DecimalPlaces = 2,
-        Maximum = 1_000_000,
+        ThousandsSeparator = true,
+        Maximum = 10_000_000,
+        Width = Theme.Scale(220),
         Minimum = 0,
         Dock = DockStyle.Fill,
         BackColor = Theme.InputFill,

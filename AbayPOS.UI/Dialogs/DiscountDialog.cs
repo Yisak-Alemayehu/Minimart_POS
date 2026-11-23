@@ -16,16 +16,17 @@ public sealed class DiscountDialog : DialogForm
         BackColor = Theme.Base;
         var surface = new GlassPanel { Dock = DockStyle.Fill, Padding = new Padding(24) };
         var grid = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 4, BackColor = Theme.Base };
-        grid.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
-        grid.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
-        grid.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
+        grid.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        grid.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        grid.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         grid.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         grid.Controls.Add(new Label { Text = "Discount", Font = Theme.FontHeading(), ForeColor = Theme.Text, Dock = DockStyle.Fill }, 0, 0);
         _value = new NumericUpDown
         {
             Dock = DockStyle.Fill,
             DecimalPlaces = 2,
-            Maximum = 100000,
+            ThousandsSeparator = true,
+            Maximum = 10_000_000,
             Value = Math.Clamp(current, 0, 100000),
             BackColor = Theme.InputFill,
             ForeColor = Theme.Text,

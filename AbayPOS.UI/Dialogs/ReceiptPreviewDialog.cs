@@ -18,7 +18,7 @@ public sealed class ReceiptPreviewDialog : DialogForm
         var surface = new GlassPanel { Dock = DockStyle.Fill, Padding = new Padding(16) };
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, BackColor = Theme.Base };
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 56));
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         var preview = new PrintPreviewControl
         {
             Dock = DockStyle.Fill,

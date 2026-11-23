@@ -64,6 +64,7 @@ internal sealed class ProductsPage : UserControl
         _grid.Columns.Add("Price", "Price");
         _grid.Columns.Add("Stock", "Stock");
         _grid.Columns.Add("Reorder", "Reorder");
+        GridTheme.Balance(_grid, "Name", "Price", "Stock", "Reorder");
         layout.Controls.Add(_grid, 0, 2);
         panel.Controls.Add(layout);
         Controls.Add(panel);

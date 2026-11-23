@@ -50,8 +50,22 @@ public sealed class ReceiptPrinter
         Line(new string('-', 32), body);
         foreach (var item in sale.Items)
         {
-            Line($"{item.Qty} x {item.ProductName}", body);
-            Line($"    {Money.Format(item.UnitPrice)}  {Money.Format(item.LineTotal),10}", body);
+            var name = $"{item.Qty} x {item.ProductName}";
+            var measured = TextRenderer.MeasureText(g, name, body, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
+            if (measured.Width <= width)
+                Line(name, body);
+            else
+            {
+                TextRenderer.DrawText(g, name, body, new Rectangle(0, (int)y, width, body.Height * 2 + 4), Color.Black,
+                    TextFormatFlags.WordBreak | TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.NoPrefix);
+                y += body.Height * 2 + 6;
+            }
+
+            var money = $"{Money.Format(item.UnitPrice)}  {Money.Format(item.LineTotal)}";
+            var moneyWidth = TextRenderer.MeasureText(g, money, body, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding | TextFormatFlags.SingleLine).Width;
+            TextRenderer.DrawText(g, money, body, new Rectangle(Math.Max(0, width - moneyWidth), (int)y, moneyWidth, body.Height + 2), Color.Black,
+                TextFormatFlags.Right | TextFormatFlags.SingleLine | TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix);
+            y += body.GetHeight(g) + 2;
         }
 
         Line(new string('-', 32), body);

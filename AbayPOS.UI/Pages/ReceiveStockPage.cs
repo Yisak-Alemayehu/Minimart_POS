@@ -57,6 +57,7 @@ internal sealed class ReceiveStockPage : UserControl
         _grid.Columns.Add("Product", "Product");
         _grid.Columns.Add("Qty", "Qty");
         _grid.Columns.Add("Cost", "Unit cost");
+        GridTheme.Balance(_grid, "Product", "Qty", "Cost");
         layout.Controls.Add(_grid, 0, 3);
         var bottom = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, BackColor = Theme.Base };
         bottom.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 70));

@@ -10,7 +10,8 @@ namespace AbayPOS.UI.Controls;
 /// <summary>Owner-drawn cart. Only visible rows are painted. Hit-tests − / + / ×.</summary>
 public sealed class CartList : Control
 {
-    public const int RowHeight = 56;
+    private readonly ToolTip _tip = new();
+    private int _tipRow = -1;
     private readonly VScrollBar _scroll = new();
     private IReadOnlyList<CartLine> _lines = [];
     private int _selected;
@@ -26,8 +27,8 @@ public sealed class CartList : Control
         AccessibleName = "Cart";
         _scroll.Dock = DockStyle.Right;
         _scroll.Width = 14;
-        _scroll.SmallChange = RowHeight;
-        _scroll.LargeChange = RowHeight * 3;
+        _scroll.SmallChange = Theme.Scale(64);
+        _scroll.LargeChange = Theme.Scale(64) * 3;
         _scroll.Scroll += (_, _) => Invalidate();
         Controls.Add(_scroll);
         _flash.Tick += (_, _) =>
@@ -69,6 +70,7 @@ public sealed class CartList : Control
         var previousFlash = _flashIndex;
         _lines = lines;
         _scroll.Maximum = Math.Max(0, lines.Count * RowHeight);
+        _scroll.LargeChange = Math.Max(RowHeight, Height);
         _scroll.Visible = lines.Count * RowHeight > Height;
         if (selectIndex is not null)
             SelectedIndex = selectIndex.Value;
@@ -119,11 +121,13 @@ public sealed class CartList : Control
             return;
         SelectedIndex = index;
         var row = RowBounds(index);
-        if (Hit(e.Location, MinusRect(row)))
+        using var g = CreateGraphics();
+        var slots = Slots(g, _lines[index], row);
+        if (Hit(e.Location, slots.Minus))
             QuantityMinus?.Invoke(this, index);
-        else if (Hit(e.Location, PlusRect(row)))
+        else if (Hit(e.Location, slots.Plus))
             QuantityPlus?.Invoke(this, index);
-        else if (Hit(e.Location, RemoveRect(row)))
+        else if (Hit(e.Location, slots.Remove))
             LineRemoved?.Invoke(this, index);
     }
 
@@ -144,29 +148,48 @@ public sealed class CartList : Control
             DrawRow(e.Graphics, i);
     }
 
+    private int RowHeight => Theme.Scale(64);
+
     private void DrawRow(Graphics g, int index)
     {
         var line = _lines[index];
         var row = RowBounds(index);
+        var slots = Slots(g, line, row);
         if (index == _flashIndex || index == _selected)
             g.FillRectangle(Theme.Brush(Theme.Selection), row);
 
-        var nameFont = Theme.Font(12, FontStyle.Bold);
-        var body = Theme.Font(11);
-        TextKit.DrawFit(g, line.ProductName, nameFont, Rectangle.Round(new RectangleF(row.X + 8, row.Y + 6, row.Width * 0.42f, 22)), Theme.Text);
-        TextKit.DrawFit(g, Money.Format(line.UnitPrice), body, Rectangle.Round(new RectangleF(row.X + 8, row.Y + 28, 120, 18)), Theme.TextSecondary);
-
-        DrawStepper(g, MinusRect(row), "−");
-        TextKit.DrawCenter(g, line.Qty.ToString(), body, Rectangle.Round(QtyRect(row)), Theme.Text);
-        DrawStepper(g, PlusRect(row), "+");
+        TextKit.DrawFit(g, line.ProductName, Theme.Font(12, FontStyle.Bold), slots.Name, Theme.Text, wrap: true);
+        TextKit.DrawFit(g, Money.Format(line.UnitPrice) + " each", Theme.Font(11), slots.Unit, Theme.TextSecondary);
+        DrawStepper(g, slots.Minus, "−");
+        TextKit.DrawCenter(g, line.Qty.ToString(), Theme.Font(11, FontStyle.Bold), slots.Qty, Theme.Text);
+        DrawStepper(g, slots.Plus, "+");
         var totalText = Money.Format(line.LineTotal);
-        var totalSlot = Rectangle.Round(new RectangleF(row.Right - 108, row.Y, 72, row.Height));
-        var totalFont = TextKit.FitFont(g, totalText, nameFont, totalSlot.Width, 10f);
-        TextKit.DrawMoney(g, totalText, totalFont, totalSlot, Theme.Accent);
-        DrawStepper(g, RemoveRect(row), "×");
+        var totalFont = TextKit.FitFont(g, totalText, Theme.Font(12, FontStyle.Bold), slots.Total.Width, 10f);
+        TextKit.DrawMoney(g, totalText, totalFont, slots.Total, Theme.Accent);
+        DrawStepper(g, slots.Remove, "×");
     }
 
-    private static void DrawStepper(Graphics g, RectangleF rect, string glyph)
+    private readonly record struct RowSlots(Rectangle Name, Rectangle Unit, Rectangle Minus, Rectangle Qty, Rectangle Plus, Rectangle Total, Rectangle Remove);
+
+    private RowSlots Slots(Graphics g, CartLine line, Rectangle row)
+    {
+        var pad = Theme.Scale(8);
+        var button = Theme.Scale(28);
+        var qtyFont = Theme.Font(11, FontStyle.Bold);
+        var qtyWidth = Math.Max(Theme.Scale(28), TextKit.Measure(g, "9999", qtyFont).Width + pad);
+        var money = TextKit.FitFont(g, "ETB 99,999.00", Theme.Font(12, FontStyle.Bold), Theme.Scale(140), 10f);
+        var moneyWidth = TextKit.Measure(g, Money.Format(line.LineTotal), money).Width + pad;
+        var remove = new Rectangle(row.Right - pad - button, row.Y + (row.Height - button) / 2, button, button);
+        var total = new Rectangle(remove.Left - pad - moneyWidth, row.Y, moneyWidth, row.Height);
+        var plus = new Rectangle(total.Left - pad - button, remove.Y, button, button);
+        var qty = new Rectangle(plus.Left - qtyWidth, row.Y, qtyWidth, row.Height);
+        var minus = new Rectangle(qty.Left - button, remove.Y, button, button);
+        var name = new Rectangle(row.X + pad, row.Y + Theme.Scale(4), Math.Max(Theme.Scale(40), minus.Left - pad - row.X - pad), row.Height / 2);
+        var unit = new Rectangle(name.X, name.Bottom, name.Width, row.Bottom - name.Bottom - Theme.Scale(4));
+        return new RowSlots(name, unit, minus, qty, plus, total, remove);
+    }
+
+    private static void DrawStepper(Graphics g, Rectangle rect, string glyph)
     {
         using var path = Gfx.Round(rect, 8);
         g.FillPath(Theme.Brush(Theme.NavGlass), path);
@@ -185,11 +208,17 @@ public sealed class CartList : Control
         return index >= 0 && index < _lines.Count ? index : -1;
     }
 
-    private static RectangleF MinusRect(Rectangle row) => new(row.Width * 0.48f, row.Y + 12, 28, 28);
-    private static RectangleF QtyRect(Rectangle row) => new(row.Width * 0.48f + 28, row.Y + 12, 28, 28);
-    private static RectangleF PlusRect(Rectangle row) => new(row.Width * 0.48f + 56, row.Y + 12, 28, 28);
-    private static RectangleF RemoveRect(Rectangle row) => new(row.Right - 32, row.Y + 12, 28, 28);
-    private static bool Hit(Point p, RectangleF r) => r.Contains(p);
+    protected override void OnMouseMove(MouseEventArgs e)
+    {
+        base.OnMouseMove(e);
+        var index = HitRow(e.Y);
+        if (index == _tipRow)
+            return;
+        _tipRow = index;
+        _tip.SetToolTip(this, index >= 0 ? _lines[index].ProductName : string.Empty);
+    }
+
+    private static bool Hit(Point p, Rectangle r) => r.Contains(p);
 
     private void EnsureVisible(int index)
     {
@@ -205,7 +234,10 @@ public sealed class CartList : Control
     protected override void Dispose(bool disposing)
     {
         if (disposing)
+        {
             _flash.Dispose();
+            _tip.Dispose();
+        }
         base.Dispose(disposing);
     }
 }

@@ -48,9 +48,11 @@ internal sealed class ReportsPage : UserControl
         _cashiers.Columns.Add("Cashier", "Cashier");
         _cashiers.Columns.Add("Tx", "Sales");
         _cashiers.Columns.Add("Total", "Total");
+        GridTheme.Balance(_cashiers, "Cashier", "Tx", "Total");
         _top.Columns.Add("Product", "Product");
         _top.Columns.Add("Qty", "Qty");
         _top.Columns.Add("Rev", "Revenue");
+        GridTheme.Balance(_top, "Product", "Qty", "Rev");
         split.Controls.Add(_cashiers, 0, 0);
         split.Controls.Add(_top, 1, 0);
         layout.Controls.Add(split, 0, 3);

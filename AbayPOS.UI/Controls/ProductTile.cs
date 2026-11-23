@@ -9,6 +9,7 @@ public sealed class ProductTile : UserControl
 {
     private bool _hovered;
     private bool _pressed;
+    private readonly ToolTip _tip = new();
 
     public ProductTile(Product product)
     {
@@ -21,6 +22,7 @@ public sealed class ProductTile : UserControl
         DoubleBuffered = true;
         SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
         AccessibleName = $"{product.Name}, {AbayPOS.Domain.Money.Format(product.Price)}";
+        _tip.SetToolTip(this, product.Name);
         TabStop = !product.IsOutOfStock;
     }
 
@@ -93,15 +95,18 @@ public sealed class ProductTile : UserControl
         e.Graphics.FillPath(fill, path);
         e.Graphics.DrawPath(border, path);
 
+        var imageHeight = (int)(Height * 0.60f);
         var emoji = string.IsNullOrWhiteSpace(Product.Emoji) ? "\uE7BF" : Product.Emoji;
         var emojiFont = string.IsNullOrWhiteSpace(Product.Emoji) ? Theme.IconFont(28) : Theme.Font(22, FontStyle.Bold);
-        TextKit.DrawCenter(e.Graphics, emoji, emojiFont, new Rectangle(0, (int)(Height * 0.08f), Width, (int)(Height * 0.38f)), dim ? Theme.Disabled : Theme.Text);
+        TextKit.DrawCenter(e.Graphics, emoji, emojiFont, new Rectangle(0, Theme.Scale(8), Width, Math.Max(1, imageHeight - Theme.Scale(12))), dim ? Theme.Disabled : Theme.Text);
 
-        var nameFont = Theme.Font(13, FontStyle.Bold);
-        TextKit.DrawFit(e.Graphics, Product.Name, nameFont, new Rectangle(8, (int)(Height * 0.48f), Math.Max(1, Width - 16), (int)(Height * 0.22f)), dim ? Theme.Disabled : Theme.Text, wrap: true);
+        var nameHeight = Theme.Scale(36);
+        var priceHeight = Theme.Scale(22);
+        var nameBounds = new Rectangle(Theme.Scale(8), imageHeight, Math.Max(1, Width - Theme.Scale(16)), nameHeight);
+        TextKit.DrawFit(e.Graphics, Product.Name, Theme.Font(13, FontStyle.Bold), nameBounds, dim ? Theme.Disabled : Theme.Text, wrap: true);
 
         var priceText = AbayPOS.Domain.Money.Format(Product.Price);
-        var priceBounds = new Rectangle(4, (int)(Height * 0.72f), Math.Max(1, Width - 8), (int)(Height * 0.16f));
+        var priceBounds = new Rectangle(Theme.Scale(8), nameBounds.Bottom, Math.Max(1, Width - Theme.Scale(16)), priceHeight);
         var priceFont = TextKit.FitFont(e.Graphics, priceText, Theme.Font(13, FontStyle.Bold), priceBounds.Width, 10f);
         TextKit.DrawCenter(e.Graphics, priceText, priceFont, priceBounds, dim ? Theme.Disabled : Theme.Accent);
 
@@ -115,7 +120,7 @@ public sealed class ProductTile : UserControl
     {
         var font = Theme.Font(8, FontStyle.Bold);
         var size = TextKit.Measure(g, text, font);
-        var rect = new RectangleF(Width - size.Width - 18, 10, size.Width + 10, 18);
+        var rect = new RectangleF(Width - size.Width - Theme.Scale(18), Theme.Scale(8), size.Width + Theme.Scale(10), Theme.Scale(18));
         using var path = Gfx.Round(rect, Theme.ChipRadius);
         var fill = Theme.Brush(color);
         var brush = Theme.Brush(Color.White);

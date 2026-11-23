@@ -23,6 +23,7 @@ internal sealed class LowStockPage : UserControl
         _grid.Columns.Add("Stock", "On hand");
         _grid.Columns.Add("Reorder", "Reorder at");
         _grid.Columns.Add("Suggest", "Suggested order");
+        GridTheme.Balance(_grid, "Name", "Stock", "Reorder", "Suggest");
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         layout.Controls.Add(_grid, 0, 1);

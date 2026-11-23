@@ -15,7 +15,7 @@ internal sealed class DashboardPage : UserControl
     private readonly KpiCard _low = new("Low stock");
     private readonly BarChart _chart = new();
     private readonly DataGridView _top = new();
-    private readonly Label _periodTotal = new();
+    private readonly FittedText _periodTotal = new() { Money = true, StartSize = 26f, MinSize = 14f, ForeColor = Theme.OnAccent, BackColor = Theme.Accent };
     private readonly Label _periodCaption = new();
     private readonly ChipButton _days7 = new("7 Days") { Selected = true };
     private readonly ChipButton _days30 = new("30 Days");
@@ -29,18 +29,37 @@ internal sealed class DashboardPage : UserControl
         Dock = DockStyle.Fill;
         BackColor = Theme.Base;
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 3, BackColor = Theme.Base };
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 128));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, Theme.Scale(150)));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 52));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 48));
 
-        var kpis = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 4, BackColor = Theme.Base };
-        foreach (var card in new[] { _sales, _tx, _avg, _low })
+        var kpis = new TableLayoutPanel { Dock = DockStyle.Fill, BackColor = Theme.Base };
+        void Arrange()
         {
-            card.Dock = DockStyle.Fill;
-            card.Margin = new Padding(0, 0, 12, 12);
-            kpis.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25));
-            kpis.Controls.Add(card);
+            var wide = Width >= Theme.Scale(1100);
+            kpis.SuspendLayout();
+            kpis.Controls.Clear();
+            kpis.ColumnStyles.Clear();
+            kpis.RowStyles.Clear();
+            kpis.ColumnCount = wide ? 4 : 2;
+            kpis.RowCount = wide ? 1 : 2;
+            for (var i = 0; i < kpis.ColumnCount; i++)
+                kpis.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f / kpis.ColumnCount));
+            for (var i = 0; i < kpis.RowCount; i++)
+                kpis.RowStyles.Add(new RowStyle(SizeType.Percent, 100f / kpis.RowCount));
+            foreach (var card in new[] { _sales, _tx, _avg, _low })
+            {
+                card.Dock = DockStyle.Fill;
+                card.Margin = new Padding(0, 0, Theme.Scale(12), Theme.Scale(12));
+                kpis.Controls.Add(card);
+            }
+
+            kpis.ResumeLayout();
+            layout.RowStyles[0] = new RowStyle(SizeType.Absolute, Theme.Scale(wide ? 150 : 300));
         }
+
+        Resize += (_, _) => Arrange();
+        Arrange();
 
         layout.Controls.Add(kpis, 0, 0);
 
@@ -76,10 +95,6 @@ internal sealed class DashboardPage : UserControl
         _periodCaption.BackColor = Theme.Accent;
         _periodCaption.Font = Theme.Font(11, FontStyle.Bold);
         _periodTotal.Dock = DockStyle.Fill;
-        _periodTotal.ForeColor = Theme.OnAccent;
-        _periodTotal.BackColor = Theme.Accent;
-        _periodTotal.Font = Theme.Font(26, FontStyle.Bold);
-        _periodTotal.TextAlign = ContentAlignment.MiddleLeft;
         summaryLayout.Controls.Add(_periodCaption, 0, 0);
         summaryLayout.Controls.Add(_periodTotal, 0, 1);
         summary.Controls.Add(summaryLayout);
@@ -99,6 +114,7 @@ internal sealed class DashboardPage : UserControl
         _top.Columns.Add("Name", "Product");
         _top.Columns.Add("Qty", "Qty");
         _top.Columns.Add("Rev", "Revenue");
+        GridTheme.Balance(_top, "Name", "Qty", "Rev");
         topPanel.Controls.Add(_top);
         topPanel.Controls.Add(head);
         layout.Controls.Add(topPanel, 0, 2);
@@ -139,7 +155,7 @@ internal sealed class DashboardPage : UserControl
         var series = await ServiceLocator.Reports.GetDailySalesAsync(from, today);
         _chart.SetPoints(series);
         _periodCaption.Text = caption;
-        _periodTotal.Text = Money.Format(series.Sum(p => p.Total));
+        _periodTotal.SetValue(Money.Format(series.Sum(p => p.Total)));
         var top = await ServiceLocator.Reports.GetTopProductsAsync(from, today, 5);
         _top.Rows.Clear();
         foreach (var row in top)
