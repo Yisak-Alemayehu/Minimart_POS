@@ -1,0 +1,7 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>AbayPOS.Domain</RootNamespace>
+    <Description>Plain entities and shared models for AbayPOS. No infrastructure dependencies.</Description>
+  </PropertyGroup>
+</Project>

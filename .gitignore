@@ -1,0 +1,28 @@
+## Build
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## NuGet
+*.nupkg
+**/packages/*
+
+## App runtime
+*.db
+*.db-shm
+*.db-wal
+logs/
+*.log
+
+## OS / IDE
+.vs/
+.idea/
+*.rsuser
+Thumbs.db
+Desktop.ini
+.DS_Store

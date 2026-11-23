@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>AbayPOS.Business</RootNamespace>
+    <Description>Use-case services. Depends on Data abstractions so the UI never touches SQL.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AbayPOS.Data\AbayPOS.Data.csproj" />
+    <ProjectReference Include="..\AbayPOS.Domain\AbayPOS.Domain.csproj" />
+  </ItemGroup>
+</Project>
