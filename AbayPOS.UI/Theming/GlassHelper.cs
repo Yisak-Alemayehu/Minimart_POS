@@ -87,13 +87,6 @@ public static class GlassHelper
     {
         ArgumentNullException.ThrowIfNull(form);
         ArgumentNullException.ThrowIfNull(graphics);
-        var kind = Detect();
-        if (kind != BackdropKind.Fallback)
-        {
-            graphics.Clear(Color.Black);
-            return;
-        }
-
         EnsureFallbackCache(form.ClientSize);
         if (_blurred is not null)
             graphics.DrawImage(_blurred, 0, 0, form.ClientSize.Width, form.ClientSize.Height);
@@ -114,7 +107,7 @@ public static class GlassHelper
     /// <summary>Rebuilds the fallback blur only when the window size changes.</summary>
     public static void EnsureFallbackCache(Size size)
     {
-        if (Detect() != BackdropKind.Fallback || size.Width <= 0 || size.Height <= 0)
+        if (size.Width <= 0 || size.Height <= 0)
             return;
 
         lock (CacheGate)

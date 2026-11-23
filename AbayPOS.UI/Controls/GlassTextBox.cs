@@ -20,7 +20,7 @@ public sealed class GlassTextBox : Panel
         SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
         _inner.BorderStyle = BorderStyle.None;
         _inner.Dock = DockStyle.Fill;
-        _inner.BackColor = Theme.InputFill;
+        _inner.BackColor = Color.FromArgb(24, 21, 39);
         _inner.ForeColor = Theme.Text;
         _inner.Font = Theme.FontBody();
         _inner.GotFocus += (_, _) => { _focused = true; Invalidate(); };

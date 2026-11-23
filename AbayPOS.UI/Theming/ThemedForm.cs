@@ -25,7 +25,7 @@ public class ThemedForm : Form
 
     /// <summary>Manager windows may prefer Mica; cashier/login use Acrylic.</summary>
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    protected bool PreferMica { get; init; }
+    protected bool PreferMica { get; set; }
 
     protected override CreateParams CreateParams
     {

@@ -1,3 +1,5 @@
+using AbayPOS.Business.Composition;
+using AbayPOS.Domain.Models;
 using AbayPOS.UI.Forms;
 using AbayPOS.UI.Infrastructure;
 
@@ -19,8 +21,50 @@ internal static class Program
             e.SetObserved();
         };
 
-        // Phase 1 composition root: UI still runs stand-alone.
-        // Phase 2+ replaces this with ServiceLocator.Build(...) and LoginForm.
-        Application.Run(new CashierForm());
+        Application.Run(new PosApplicationContext());
+    }
+}
+
+internal sealed class PosApplicationContext : ApplicationContext
+{
+    public PosApplicationContext() => _ = BootAsync();
+
+    private async Task BootAsync()
+    {
+        try
+        {
+            var host = await AppHost.StartAsync().ConfigureAwait(true);
+            ServiceLocator.Configure(host);
+            ShowLogin();
+        }
+        catch (Exception ex)
+        {
+            CrashGuard.Handle(ex, "startup");
+            ExitThread();
+        }
+    }
+
+    private void ShowLogin()
+    {
+        var login = new LoginForm();
+        login.SessionStarted += (_, session) => OpenShell(login, session);
+        MainForm = login;
+        login.Show();
+    }
+
+    private void OpenShell(LoginForm login, Session session)
+    {
+        Form shell = session.IsManager ? new ManagerForm(session) : new CashierForm(session);
+        shell.FormClosed += (_, _) =>
+        {
+            if (shell.DialogResult == DialogResult.Retry)
+                ShowLogin();
+            else
+                ExitThread();
+        };
+        MainForm = shell;
+        login.Hide();
+        shell.Show();
+        login.Close();
     }
 }
