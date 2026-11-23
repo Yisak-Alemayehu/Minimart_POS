@@ -19,15 +19,15 @@ internal sealed class ReportsPage : UserControl
     public ReportsPage(Session session)
     {
         Dock = DockStyle.Fill;
-        BackColor = Color.Transparent;
+        BackColor = Theme.Base;
         var panel = new GlassPanel { Dock = DockStyle.Fill, Padding = new Padding(16) };
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 4, BackColor = Color.Transparent };
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 4, BackColor = Theme.Base };
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         layout.Controls.Add(new Label { Text = "Reports", Font = Theme.FontHeading(), ForeColor = Theme.Text, Dock = DockStyle.Fill }, 0, 0);
-        var toolbar = new FlowLayoutPanel { Dock = DockStyle.Fill, BackColor = Color.Transparent };
+        var toolbar = new FlowLayoutPanel { Dock = DockStyle.Fill, BackColor = Theme.Base };
         var run = new RoundButton { Text = "Run", Width = 90, Height = 36, IsPrimary = true };
         run.Click += (_, _) => Reload();
         var export = new RoundButton { Text = "Export CSV", Width = 120, Height = 36, FillColor = Theme.NavGlass };
@@ -40,7 +40,7 @@ internal sealed class ReportsPage : UserControl
         toolbar.Controls.Add(export);
         layout.Controls.Add(toolbar, 0, 1);
         layout.Controls.Add(_summary, 0, 2);
-        var split = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, BackColor = Color.Transparent };
+        var split = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, BackColor = Theme.Base };
         GridTheme.Apply(_cashiers);
         GridTheme.Apply(_top);
         _cashiers.Dock = DockStyle.Fill;

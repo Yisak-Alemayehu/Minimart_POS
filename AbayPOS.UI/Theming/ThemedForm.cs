@@ -32,13 +32,13 @@ public class ThemedForm : Form
         get
         {
             var cp = base.CreateParams;
-            cp.ExStyle |= 0x02000000; // WS_EX_COMPOSITED
+            cp.Style |= 0x02000000; // WS_CLIPCHILDREN — keep child controls from being painted over
             return cp;
         }
     }
 
     protected override void OnPaintBackground(PaintEventArgs e) =>
-        GlassHelper.PaintFormBackground(this, e.Graphics);
+        e.Graphics.Clear(Theme.Base);
 
     /// <summary>Lets the user drag a borderless window from chrome that calls this handler.</summary>
     protected void DragWindow(object? sender, MouseEventArgs e)
@@ -57,7 +57,7 @@ public class ThemedForm : Form
             Dock = DockStyle.Fill,
             FlowDirection = FlowDirection.RightToLeft,
             WrapContents = false,
-            BackColor = Color.Transparent,
+            BackColor = Theme.Base,
             Padding = new Padding(0, 0, 2, 0)
         };
         var close = new WindowButton { Glyph = "\uE8BB", IsClose = true };

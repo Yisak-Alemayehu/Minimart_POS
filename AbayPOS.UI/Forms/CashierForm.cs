@@ -29,8 +29,8 @@ public sealed class CashierForm : ThemedForm
     private readonly RoundButton _payButton = new();
     private readonly RoundButton _salesNav;
     private readonly RoundButton _historyNav;
-    private readonly Panel _salesPage = new() { Dock = DockStyle.Fill, BackColor = Color.Transparent };
-    private readonly Panel _historyPage = new() { Dock = DockStyle.Fill, BackColor = Color.Transparent, Visible = false };
+    private readonly Panel _salesPage = new() { Dock = DockStyle.Fill, BackColor = Theme.Base };
+    private readonly Panel _historyPage = new() { Dock = DockStyle.Fill, BackColor = Theme.Base, Visible = false };
     private readonly DataGridView _historyGrid = new();
     private readonly System.Windows.Forms.Timer _clock = new();
     private readonly System.Windows.Forms.Timer _debounce = new() { Interval = 200 };
@@ -118,45 +118,60 @@ public sealed class CashierForm : ThemedForm
 
     private void BuildLayout()
     {
-        var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, Padding = new Padding(12), BackColor = Color.Transparent };
+        var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, Padding = new Padding(12), BackColor = Theme.Base };
         root.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, Theme.SidebarWidth));
         root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         Controls.Add(root);
         root.Controls.Add(BuildSidebar(), 0, 0);
         root.Controls.Add(BuildMainArea(), 1, 0);
+        Surface.Adopt(this, Theme.Base);
+        _saleNoLabel.BackColor = Theme.Accent;
+        _saleNoLabel.ForeColor = Theme.OnAccent;
     }
 
     private Control BuildSidebar()
     {
-        var sidebar = new GlassPanel { Dock = DockStyle.Fill, Margin = new Padding(0, 0, 12, 0), Padding = new Padding(15, 18, 15, 14), FillColor = Theme.SidebarGlass };
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 5, BackColor = Color.Transparent };
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 90));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 52));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 52));
+        var sidebar = new GlassPanel { Dock = DockStyle.Fill, Margin = new Padding(0, 0, 12, 0), Padding = new Padding(12, 16, 12, 12), FillColor = Theme.Sidebar };
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, BackColor = Theme.Sidebar };
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 84));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 52));
-        var logo = new Panel { Dock = DockStyle.Fill, BackColor = Color.Transparent };
-        logo.Controls.Add(new Label { Text = "Abay", ForeColor = Theme.Text, Font = Theme.Font(22, FontStyle.Bold), AutoSize = true, Location = new Point(0, 17) });
-        logo.Controls.Add(new Label { Text = "POS", ForeColor = Theme.Accent, Font = Theme.Font(12, FontStyle.Bold), AutoSize = true, Location = new Point(2, 52) });
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 56));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
+        var logo = new Panel { Dock = DockStyle.Fill, BackColor = Theme.Sidebar };
+        logo.Controls.Add(new Label { Text = "Minimart POS", ForeColor = Theme.Text, BackColor = Theme.Sidebar, Font = Theme.Font(16, FontStyle.Bold), AutoSize = true, Location = new Point(4, 8) });
+        logo.Controls.Add(new Label { Text = "Fast · Simple · Reliable", ForeColor = Theme.TextSecondary, BackColor = Theme.Sidebar, Font = Theme.FontHint(), AutoSize = true, Location = new Point(4, 40) });
         _salesNav.Click += (_, _) => ShowSales();
         _historyNav.Click += (_, _) => ShowHistory();
+        var who = new Label
+        {
+            Text = _session.User.FullName,
+            Dock = DockStyle.Fill,
+            ForeColor = Theme.Text,
+            BackColor = Theme.Sidebar,
+            Font = Theme.Font(10, FontStyle.Bold),
+            TextAlign = ContentAlignment.MiddleLeft,
+            Padding = new Padding(8, 0, 0, 0)
+        };
         var logout = CreateNavButton("\uE8AC", "Log out  F12", false);
         logout.Click += (_, _) => Logout();
         layout.Controls.Add(logo, 0, 0);
         layout.Controls.Add(_salesNav, 0, 1);
         layout.Controls.Add(_historyNav, 0, 2);
-        layout.Controls.Add(logout, 0, 4);
+        layout.Controls.Add(who, 0, 4);
+        layout.Controls.Add(logout, 0, 5);
         sidebar.Controls.Add(layout);
         return sidebar;
     }
 
     private Control BuildMainArea()
     {
-        var main = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, BackColor = Color.Transparent };
+        var main = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, BackColor = Theme.Base };
         main.RowStyles.Add(new RowStyle(SizeType.Absolute, Theme.TopBarHeight));
         main.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         main.Controls.Add(BuildTopBar(), 0, 0);
-        var host = new Panel { Dock = DockStyle.Fill, BackColor = Color.Transparent };
+        var host = new Panel { Dock = DockStyle.Fill, BackColor = Theme.Base };
         host.Controls.Add(_historyPage);
         host.Controls.Add(_salesPage);
         BuildSalesPage();
@@ -167,38 +182,43 @@ public sealed class CashierForm : ThemedForm
 
     private Control BuildTopBar()
     {
-        var bar = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, BackColor = Color.Transparent };
-        bar.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 28));
-        bar.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 42));
-        bar.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 30));
-        var title = new Label { Text = "AbayPOS", Dock = DockStyle.Fill, ForeColor = Theme.Text, Font = Theme.Font(15, FontStyle.Bold), TextAlign = ContentAlignment.MiddleLeft };
+        var bar = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 4, BackColor = Theme.Base };
+        bar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160));
+        bar.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        bar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 220));
+        bar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 146));
+        var title = new Label { Text = "Abay POS", Dock = DockStyle.Fill, ForeColor = Theme.Text, BackColor = Theme.Base, Font = Theme.Font(18, FontStyle.Bold), TextAlign = ContentAlignment.MiddleLeft };
         title.MouseDown += DragWindow;
         bar.MouseDown += DragWindow;
         bar.Controls.Add(title, 0, 0);
-        var search = new GlassPanel { Dock = DockStyle.Fill, Margin = new Padding(8, 7, 8, 7), Radius = 18, FillColor = Theme.SearchGlass };
-        var searchText = new Label { Text = "\uE721   Search...  Ctrl+K / F2", Dock = DockStyle.Fill, ForeColor = Theme.TextSecondary, Font = Theme.FontHint(), TextAlign = ContentAlignment.MiddleLeft, Padding = new Padding(12, 0, 0, 0), Cursor = Cursors.Hand };
+        var search = new GlassPanel { Dock = DockStyle.Fill, Margin = new Padding(8, 10, 8, 10), Radius = 18, FillColor = Theme.Search };
+        var searchText = new Label
+        {
+            Text = "Search barcode or search product...     F2",
+            Dock = DockStyle.Fill,
+            ForeColor = Theme.TextSecondary,
+            BackColor = Theme.Search,
+            Font = Theme.FontHint(),
+            TextAlign = ContentAlignment.MiddleLeft,
+            Padding = new Padding(14, 0, 0, 0),
+            Cursor = Cursors.Hand
+        };
         searchText.Click += (_, _) => FocusBarcode();
         search.Controls.Add(searchText);
         bar.Controls.Add(search, 1, 0);
-        var right = CreateWindowButtons(this);
-        _clockLabel.AutoSize = true;
+        _clockLabel.Dock = DockStyle.Fill;
         _clockLabel.ForeColor = Theme.TextSecondary;
-        _clockLabel.Font = Theme.FontHint();
-        _clockLabel.Margin = new Padding(12, 21, 0, 0);
-        _cashierLabel.Text = _session.User.FullName;
-        _cashierLabel.AutoSize = true;
-        _cashierLabel.ForeColor = Theme.Text;
-        _cashierLabel.Font = Theme.Font(9, FontStyle.Bold);
-        _cashierLabel.Margin = new Padding(8, 21, 0, 0);
-        right.Controls.Add(_clockLabel);
-        right.Controls.Add(_cashierLabel);
-        bar.Controls.Add(right, 2, 0);
+        _clockLabel.BackColor = Theme.Base;
+        _clockLabel.Font = Theme.Font(10, FontStyle.Bold);
+        _clockLabel.TextAlign = ContentAlignment.MiddleRight;
+        bar.Controls.Add(_clockLabel, 2, 0);
+        bar.Controls.Add(CreateWindowButtons(this), 3, 0);
         return bar;
     }
 
     private void BuildSalesPage()
     {
-        var content = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, Padding = new Padding(0, 8, 0, 0), BackColor = Color.Transparent };
+        var content = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, Padding = new Padding(0, 8, 0, 0), BackColor = Theme.Base };
         content.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 62));
         content.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 38));
         content.Controls.Add(BuildProductPanel(), 0, 0);
@@ -209,7 +229,7 @@ public sealed class CashierForm : ThemedForm
     private void BuildHistoryPage()
     {
         var panel = new GlassPanel { Dock = DockStyle.Fill, Margin = new Padding(0, 8, 0, 0), Padding = new Padding(16) };
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, BackColor = Color.Transparent };
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, BackColor = Theme.Base };
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         layout.Controls.Add(new Label { Text = "Your sales today", Font = Theme.FontHeading(), ForeColor = Theme.Text, Dock = DockStyle.Fill }, 0, 0);
@@ -227,12 +247,12 @@ public sealed class CashierForm : ThemedForm
     private Control BuildProductPanel()
     {
         var panel = new GlassPanel { Dock = DockStyle.Fill, Margin = new Padding(0, 0, 8, 0), Padding = new Padding(16, 14, 16, 12) };
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 4, BackColor = Color.Transparent };
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 4, BackColor = Theme.Base };
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 22));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        var scan = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, BackColor = Color.Transparent };
+        var scan = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, BackColor = Theme.Base };
         scan.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         scan.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 72));
         _barcodeBox.Dock = DockStyle.Fill;
@@ -245,7 +265,7 @@ public sealed class CashierForm : ThemedForm
         _chips.Dock = DockStyle.Fill;
         _chips.WrapContents = false;
         _chips.AutoScroll = true;
-        _chips.BackColor = Color.Transparent;
+        _chips.BackColor = Theme.Base;
         layout.Controls.Add(_chips, 0, 1);
         _lookupMessage.Dock = DockStyle.Fill;
         _lookupMessage.ForeColor = Theme.Danger;
@@ -254,7 +274,7 @@ public sealed class CashierForm : ThemedForm
         _productsFlow.Dock = DockStyle.Fill;
         _productsFlow.AutoScroll = true;
         _productsFlow.WrapContents = true;
-        _productsFlow.BackColor = Color.Transparent;
+        _productsFlow.BackColor = Theme.Base;
         _productsFlow.Resize += (_, _) => ResizeTiles();
         layout.Controls.Add(_productsFlow, 0, 3);
         panel.Controls.Add(layout);
@@ -264,7 +284,7 @@ public sealed class CashierForm : ThemedForm
     private Control BuildCartPanel()
     {
         var panel = new GlassPanel { Dock = DockStyle.Fill, Margin = new Padding(8, 0, 0, 0), Padding = new Padding(16, 14, 16, 12) };
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 6, BackColor = Color.Transparent };
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 6, BackColor = Theme.Base };
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 42));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 120));
@@ -273,8 +293,11 @@ public sealed class CashierForm : ThemedForm
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 8));
         _saleNoLabel.Text = "Current sale " + _salePreview;
         _saleNoLabel.Dock = DockStyle.Fill;
-        _saleNoLabel.ForeColor = Theme.Text;
-        _saleNoLabel.Font = Theme.Font(11, FontStyle.Bold);
+        _saleNoLabel.ForeColor = Theme.OnAccent;
+        _saleNoLabel.BackColor = Theme.Accent;
+        _saleNoLabel.Font = Theme.Font(12, FontStyle.Bold);
+        _saleNoLabel.TextAlign = ContentAlignment.MiddleLeft;
+        _saleNoLabel.Padding = new Padding(12, 0, 0, 0);
         layout.Controls.Add(_saleNoLabel, 0, 0);
         _cartList.Dock = DockStyle.Fill;
         _cartList.QuantityPlus += (_, i) => NudgeAt(i, 1);
@@ -282,12 +305,25 @@ public sealed class CashierForm : ThemedForm
         _cartList.LineRemoved += (_, i) => RemoveAt(i);
         layout.Controls.Add(_cartList, 0, 1);
         layout.Controls.Add(BuildSummary(), 0, 2);
+        var payRow = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, BackColor = Theme.Card };
+        payRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 68));
+        payRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 32));
         _payButton.Dock = DockStyle.Fill;
+        _payButton.Margin = new Padding(0, 0, 8, 0);
         _payButton.Text = "Pay";
-        _payButton.Badge = "Enter";
         _payButton.IsPrimary = true;
         _payButton.Click += (_, _) => CompletePayment();
-        layout.Controls.Add(_payButton, 0, 3);
+        var enter = new RoundButton
+        {
+            Dock = DockStyle.Fill,
+            Text = "Enter",
+            FillColor = Theme.Card,
+            BorderColor = Theme.Accent
+        };
+        enter.Click += (_, _) => CompletePayment();
+        payRow.Controls.Add(_payButton, 0, 0);
+        payRow.Controls.Add(enter, 1, 0);
+        layout.Controls.Add(payRow, 0, 3);
         var cancel = new RoundButton { Dock = DockStyle.Fill, Text = "Cancel sale  Esc", FillColor = Theme.CancelGlass, BorderColor = Theme.GlassBorder };
         cancel.Click += (_, _) => CancelSale();
         layout.Controls.Add(cancel, 0, 4);
@@ -297,7 +333,7 @@ public sealed class CashierForm : ThemedForm
 
     private Control BuildSummary()
     {
-        var summary = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 4, BackColor = Color.Transparent };
+        var summary = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 4, BackColor = Theme.Base };
         summary.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 55));
         summary.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45));
         summary.Controls.Add(Muted("Subtotal"), 0, 0);
@@ -550,7 +586,7 @@ public sealed class CashierForm : ThemedForm
         _salesPage.Visible = true;
         _historyPage.Visible = false;
         _salesNav.FillColor = Theme.Accent;
-        _historyNav.FillColor = Theme.NavGlass;
+        _historyNav.FillColor = Theme.NavRaised;
         FocusBarcode();
     }
 
@@ -558,7 +594,7 @@ public sealed class CashierForm : ThemedForm
     {
         _salesPage.Visible = false;
         _historyPage.Visible = true;
-        _salesNav.FillColor = Theme.NavGlass;
+        _salesNav.FillColor = Theme.NavRaised;
         _historyNav.FillColor = Theme.Accent;
         UiAsync.Run(async () =>
         {
@@ -603,9 +639,9 @@ public sealed class CashierForm : ThemedForm
     private void ConfigureClock()
     {
         _clock.Interval = 1000;
-        _clock.Tick += (_, _) => _clockLabel.Text = DateTime.Now.ToString("hh:mm tt");
+        _clock.Tick += (_, _) => _clockLabel.Text = DateTime.Now.ToString("MMM d, yyyy   hh:mm tt");
         _clock.Start();
-        _clockLabel.Text = DateTime.Now.ToString("hh:mm tt");
+        _clockLabel.Text = DateTime.Now.ToString("MMM d, yyyy   hh:mm tt");
     }
 
     private static RoundButton CreateNavButton(string icon, string text, bool active) => new()
@@ -615,8 +651,8 @@ public sealed class CashierForm : ThemedForm
         Dock = DockStyle.Fill,
         Margin = new Padding(0, 3, 0, 3),
         Font = Theme.Font(10, active ? FontStyle.Bold : FontStyle.Regular),
-        FillColor = active ? Theme.Accent : Theme.NavGlass,
-        BorderColor = active ? Theme.Accent : Color.Transparent,
+        FillColor = active ? Theme.Accent : Theme.NavRaised,
+        BorderColor = active ? Theme.Accent : Color.Empty,
         LabelAlign = ContentAlignment.MiddleLeft
     };
 
@@ -638,20 +674,5 @@ public sealed class CashierForm : ThemedForm
         return label;
     }
 
-    private static void ThemeGrid(DataGridView grid)
-    {
-        grid.BackgroundColor = Theme.CartSurface;
-        grid.BorderStyle = BorderStyle.None;
-        grid.EnableHeadersVisualStyles = false;
-        grid.ColumnHeadersDefaultCellStyle.BackColor = Theme.GlassSolid;
-        grid.ColumnHeadersDefaultCellStyle.ForeColor = Theme.TextSecondary;
-        grid.DefaultCellStyle.BackColor = Theme.CartSurface;
-        grid.DefaultCellStyle.ForeColor = Theme.Text;
-        grid.DefaultCellStyle.SelectionBackColor = Theme.Selection;
-        grid.RowHeadersVisible = false;
-        grid.AllowUserToAddRows = false;
-        grid.ReadOnly = true;
-        grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        grid.RowTemplate.Height = Theme.TouchTarget;
-    }
+    private static void ThemeGrid(DataGridView grid) => GridTheme.Apply(grid);
 }

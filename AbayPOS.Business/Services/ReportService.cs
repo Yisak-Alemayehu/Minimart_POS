@@ -8,6 +8,7 @@ public interface IReportService
 {
     Task<DashboardKpis> GetDashboardAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<DailySalesPoint>> GetLast7DaysAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<DailySalesPoint>> GetDailySalesAsync(DateTime from, DateTime to, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<TopProductRow>> GetTopProductsAsync(DateTime from, DateTime to, int take, CancellationToken cancellationToken = default);
     Task<SalesSummary> GetSalesSummaryAsync(DateTime from, DateTime to, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<CashierSalesRow>> GetSalesByCashierAsync(DateTime from, DateTime to, CancellationToken cancellationToken = default);
@@ -28,10 +29,19 @@ public sealed class ReportService : IReportService
         return await uow.Reports.GetDashboardAsync(DateTime.Now, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<IReadOnlyList<DailySalesPoint>> GetLast7DaysAsync(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<DailySalesPoint>> GetLast7DaysAsync(CancellationToken cancellationToken = default)
     {
         var to = DateTime.Now.Date;
-        var from = to.AddDays(-6);
+        return GetDailySalesAsync(to.AddDays(-6), to, cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<DailySalesPoint>> GetDailySalesAsync(DateTime from, DateTime to, CancellationToken cancellationToken = default)
+    {
+        from = from.Date;
+        to = to.Date;
+        if (to < from)
+            (from, to) = (to, from);
+
         await using var uow = _uow.Create();
         await uow.EnsureOpenAsync(cancellationToken).ConfigureAwait(false);
         var points = await uow.Reports.GetDailySalesAsync(from, to, cancellationToken).ConfigureAwait(false);

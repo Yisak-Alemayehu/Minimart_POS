@@ -19,13 +19,13 @@ public sealed class ConfirmDialog : Form
         KeyPreview = true;
 
         var surface = new GlassPanel { Dock = DockStyle.Fill, Padding = new Padding(24) };
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 3, BackColor = Color.Transparent };
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 3, BackColor = Theme.Base };
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 52));
         layout.Controls.Add(new Label { Text = title, Dock = DockStyle.Fill, Font = Theme.FontHeading(), ForeColor = Theme.Text, TextAlign = ContentAlignment.MiddleLeft }, 0, 0);
         layout.Controls.Add(new Label { Text = message, Dock = DockStyle.Fill, Font = Theme.FontBody(), ForeColor = Theme.TextSecondary }, 0, 1);
-        var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft, BackColor = Color.Transparent };
+        var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft, BackColor = Theme.Base };
         var ok = new RoundButton
         {
             Text = confirmText,
@@ -42,6 +42,7 @@ public sealed class ConfirmDialog : Form
         layout.Controls.Add(buttons, 0, 2);
         surface.Controls.Add(layout);
         Controls.Add(surface);
+        Surface.Adopt(this, Theme.Base);
         AcceptButton = ok;
         CancelButton = cancel;
         Load += (_, _) => GlassHelper.ApplyToWindow(this);

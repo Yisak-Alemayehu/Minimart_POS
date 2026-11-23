@@ -87,11 +87,7 @@ public static class GlassHelper
     {
         ArgumentNullException.ThrowIfNull(form);
         ArgumentNullException.ThrowIfNull(graphics);
-        EnsureFallbackCache(form.ClientSize);
-        if (_blurred is not null)
-            graphics.DrawImage(_blurred, 0, 0, form.ClientSize.Width, form.ClientSize.Height);
-        else
-            graphics.Clear(Theme.Base);
+        graphics.Clear(Theme.Base);
     }
 
     /// <summary>Blurred bitmap used by inner glass panels, or null when DWM supplies the blur.</summary>

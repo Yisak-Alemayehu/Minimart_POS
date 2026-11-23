@@ -14,27 +14,52 @@ public class RoundButton : Button
     {
         FlatStyle = FlatStyle.Flat;
         FlatAppearance.BorderSize = 0;
-        BackColor = Color.Transparent;
-        ForeColor = Theme.Text;
+        FlatAppearance.MouseOverBackColor = Theme.Accent;
+        FlatAppearance.MouseDownBackColor = Theme.AccentPressed;
+        BackColor = Theme.Accent;
+        ForeColor = Theme.OnAccent;
         Font = Theme.Font(12f, FontStyle.Bold);
         Cursor = Cursors.Hand;
         MinimumSize = new Size(Theme.TouchTarget, Theme.TouchTarget);
         DoubleBuffered = true;
-        SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.SupportsTransparentBackColor | ControlStyles.ResizeRedraw, true);
+        SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
         TabStop = true;
     }
 
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    public Color FillColor { get; set; } = Theme.Accent;
+    private Color _fill = Theme.Accent;
+    private string _badge = string.Empty;
 
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    public Color BorderColor { get; set; } = Color.Transparent;
+    public Color FillColor
+    {
+        get => _fill;
+        set
+        {
+            _fill = Theme.Solid(value);
+            BackColor = _fill;
+            ForeColor = Theme.On(_fill);
+            FlatAppearance.MouseOverBackColor = _fill;
+            FlatAppearance.MouseDownBackColor = _fill;
+            Invalidate();
+        }
+    }
+
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    public Color BorderColor { get; set; } = Color.Empty;
 
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public string Icon { get; set; } = string.Empty;
 
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    public string Badge { get; set; } = string.Empty;
+    public string Badge
+    {
+        get => _badge;
+        set
+        {
+            _badge = value ?? string.Empty;
+            Invalidate();
+        }
+    }
 
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public bool IsPrimary { get; set; }
@@ -83,6 +108,12 @@ public class RoundButton : Button
         Invalidate();
     }
 
+    protected override void OnPaintBackground(PaintEventArgs e)
+    {
+        var backdrop = Parent?.BackColor ?? Theme.Base;
+        e.Graphics.Clear(Theme.Solid(backdrop));
+    }
+
     protected override void OnPaint(PaintEventArgs e)
     {
         e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
@@ -94,7 +125,7 @@ public class RoundButton : Button
         using var path = Gfx.Round(new RectangleF(x + 0.5f, y + 0.5f, w - 1f, h - 1f), Theme.ButtonRadius);
         var fill = FillColor;
         if (!Enabled)
-            fill = Color.FromArgb(102, fill);
+            fill = Theme.NavRaised;
         else if (_pressed)
             fill = Darken(fill, 0.12f);
         else if (_hovered)
@@ -102,7 +133,7 @@ public class RoundButton : Button
 
         using var brush = new SolidBrush(fill);
         e.Graphics.FillPath(brush, path);
-        if (BorderColor.A > 0)
+        if (BorderColor.A == 255)
         {
             using var border = new Pen(Enabled ? BorderColor : Color.FromArgb(40, BorderColor), 1f);
             e.Graphics.DrawPath(border, path);
@@ -147,7 +178,8 @@ public class RoundButton : Button
         e.Graphics.FillPath(badgeFill, badgePath);
         e.Graphics.DrawPath(badgePen, badgePath);
         using var center = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-        e.Graphics.DrawString(Badge, badgeFont, textBrush, rect, center);
+        using var badgeText = new SolidBrush(Theme.Text);
+        e.Graphics.DrawString(Badge, badgeFont, badgeText, rect, center);
     }
 
     private static Color Lighten(Color color, float amount) =>

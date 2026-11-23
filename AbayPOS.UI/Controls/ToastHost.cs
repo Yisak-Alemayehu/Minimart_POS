@@ -67,6 +67,7 @@ internal sealed class ToastCard : Control
 
     protected override void OnPaint(PaintEventArgs e)
     {
+        e.Graphics.Clear(Theme.Card);
         e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
         using var path = Gfx.Round(new RectangleF(1, 1, Width - 2, Height - 2), Theme.ButtonRadius);
         using var fill = new SolidBrush(Theme.GlassSolid);

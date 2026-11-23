@@ -19,6 +19,7 @@ public sealed class ChipButton : Control
         TabStop = true;
         AccessibleName = text;
         DoubleBuffered = true;
+        BackColor = Theme.NavRaised;
         SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
         Padding = new Padding(12, 0, 12, 0);
     }
@@ -40,14 +41,16 @@ public sealed class ChipButton : Control
 
     protected override void OnPaint(PaintEventArgs e)
     {
+        var backdrop = Parent?.BackColor ?? Theme.Card;
+        e.Graphics.Clear(Theme.Solid(backdrop));
         e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
         using var path = Gfx.Round(new RectangleF(0.5f, 0.5f, Width - 1, Height - 1), Theme.ChipRadius);
-        using var fill = new SolidBrush(Selected ? Color.FromArgb(60, Theme.Accent) : _hovered ? Theme.NavGlass : Theme.CancelGlass);
-        using var border = new Pen(Selected ? Theme.Accent : Theme.GlassBorder);
+        using var fill = new SolidBrush(Selected ? Theme.Accent : _hovered ? Theme.TileHover : Theme.NavRaised);
+        using var border = new Pen(Selected ? Theme.Accent : Theme.Line);
         e.Graphics.FillPath(fill, path);
         e.Graphics.DrawPath(border, path);
         using var font = Theme.FontHint();
-        using var brush = new SolidBrush(Theme.Text);
+        using var brush = new SolidBrush(Selected ? Theme.OnAccent : Theme.Text);
         using var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
         e.Graphics.DrawString(Text, font, brush, ClientRectangle, format);
     }

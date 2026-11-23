@@ -17,14 +17,14 @@ internal sealed class SuppliersPage : UserControl
     {
         _session = session;
         Dock = DockStyle.Fill;
-        BackColor = Color.Transparent;
+        BackColor = Theme.Base;
         var panel = new GlassPanel { Dock = DockStyle.Fill, Padding = new Padding(16) };
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 3, BackColor = Color.Transparent };
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 3, BackColor = Theme.Base };
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         layout.Controls.Add(new Label { Text = "Suppliers", Font = Theme.FontHeading(), ForeColor = Theme.Text, Dock = DockStyle.Fill }, 0, 0);
-        var toolbar = new FlowLayoutPanel { Dock = DockStyle.Fill, BackColor = Color.Transparent };
+        var toolbar = new FlowLayoutPanel { Dock = DockStyle.Fill, BackColor = Theme.Base };
         var add = new RoundButton { Text = "Add", Width = 100, Height = 40, IsPrimary = true };
         add.Click += (_, _) => Edit(new Supplier { IsActive = true });
         var edit = new RoundButton { Text = "Edit", Width = 100, Height = 40, FillColor = Theme.NavGlass };

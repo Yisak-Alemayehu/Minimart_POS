@@ -10,7 +10,7 @@ internal sealed class KpiCard : GlassPanel
     public KpiCard(string title)
     {
         Padding = new Padding(16);
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, BackColor = Color.Transparent };
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, BackColor = Theme.Base };
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 40));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 60));
         layout.Controls.Add(new Label { Text = title, Dock = DockStyle.Fill, ForeColor = Theme.TextSecondary, Font = Theme.FontHint(), TextAlign = ContentAlignment.BottomLeft }, 0, 0);

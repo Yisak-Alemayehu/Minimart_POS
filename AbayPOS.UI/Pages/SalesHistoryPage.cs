@@ -24,15 +24,15 @@ internal sealed class SalesHistoryPage : UserControl
     {
         _session = session;
         Dock = DockStyle.Fill;
-        BackColor = Color.Transparent;
+        BackColor = Theme.Base;
         var panel = new GlassPanel { Dock = DockStyle.Fill, Padding = new Padding(16) };
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 4, BackColor = Color.Transparent };
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 4, BackColor = Theme.Base };
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 55));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 45));
         layout.Controls.Add(new Label { Text = "Sales history", Font = Theme.FontHeading(), ForeColor = Theme.Text, Dock = DockStyle.Fill }, 0, 0);
-        var toolbar = new FlowLayoutPanel { Dock = DockStyle.Fill, BackColor = Color.Transparent };
+        var toolbar = new FlowLayoutPanel { Dock = DockStyle.Fill, BackColor = Theme.Base };
         var run = new RoundButton { Text = "Filter", Width = 90, Height = 36, IsPrimary = true };
         run.Click += (_, _) => Reload();
         var reprint = new RoundButton { Text = "Reprint", Width = 100, Height = 36, FillColor = Theme.NavGlass };
@@ -41,6 +41,9 @@ internal sealed class SalesHistoryPage : UserControl
         voidBtn.Click += (_, _) => VoidSelected();
         _cashier.Width = 160;
         _cashier.DropDownStyle = ComboBoxStyle.DropDownList;
+        _cashier.FlatStyle = FlatStyle.Flat;
+        _cashier.BackColor = Theme.InputFill;
+        _cashier.ForeColor = Theme.Text;
         toolbar.Controls.Add(_from);
         toolbar.Controls.Add(_to);
         toolbar.Controls.Add(_saleNo);

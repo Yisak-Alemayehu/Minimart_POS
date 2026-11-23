@@ -24,9 +24,9 @@ internal sealed class ReceiveStockPage : UserControl
     {
         _session = session;
         Dock = DockStyle.Fill;
-        BackColor = Color.Transparent;
+        BackColor = Theme.Base;
         var panel = new GlassPanel { Dock = DockStyle.Fill, Padding = new Padding(16) };
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 5, BackColor = Color.Transparent };
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 5, BackColor = Theme.Base };
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
@@ -35,12 +35,14 @@ internal sealed class ReceiveStockPage : UserControl
         layout.Controls.Add(new Label { Text = "Receive stock", Font = Theme.FontHeading(), ForeColor = Theme.Text, Dock = DockStyle.Fill }, 0, 0);
         _supplier.Dock = DockStyle.Fill;
         _supplier.DropDownStyle = ComboBoxStyle.DropDownList;
+        _supplier.FlatStyle = FlatStyle.Flat;
         _supplier.BackColor = Theme.InputFill;
         _supplier.ForeColor = Theme.Text;
         layout.Controls.Add(_supplier, 0, 1);
-        var addRow = new FlowLayoutPanel { Dock = DockStyle.Fill, BackColor = Color.Transparent };
+        var addRow = new FlowLayoutPanel { Dock = DockStyle.Fill, BackColor = Theme.Base };
         _product.Width = 260;
         _product.DropDownStyle = ComboBoxStyle.DropDownList;
+        _product.FlatStyle = FlatStyle.Flat;
         _product.BackColor = Theme.InputFill;
         _product.ForeColor = Theme.Text;
         var add = new RoundButton { Text = "Add line", Width = 110, Height = 40, FillColor = Theme.NavGlass };
@@ -56,7 +58,7 @@ internal sealed class ReceiveStockPage : UserControl
         _grid.Columns.Add("Qty", "Qty");
         _grid.Columns.Add("Cost", "Unit cost");
         layout.Controls.Add(_grid, 0, 3);
-        var bottom = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, BackColor = Color.Transparent };
+        var bottom = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, BackColor = Theme.Base };
         bottom.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 70));
         bottom.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 30));
         _note.Dock = DockStyle.Fill;

@@ -15,7 +15,7 @@ public sealed class ProductTile : UserControl
         Product = product;
         Size = new Size(170, 170);
         Margin = new Padding(0, 0, 12, 12);
-        BackColor = Color.Transparent;
+        BackColor = Theme.Tile;
         Cursor = product.IsOutOfStock ? Cursors.No : Cursors.Hand;
         Enabled = !product.IsOutOfStock;
         DoubleBuffered = true;
@@ -61,6 +61,7 @@ public sealed class ProductTile : UserControl
 
     protected override void OnPaint(PaintEventArgs e)
     {
+        e.Graphics.Clear(Theme.Solid(Parent?.BackColor ?? Theme.Card));
         e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
         e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
         var dim = Product.IsOutOfStock;
@@ -102,7 +103,7 @@ public sealed class ProductTile : UserControl
         var rect = new RectangleF(Width - size.Width - 18, 10, size.Width + 10, 18);
         using var path = Gfx.Round(rect, Theme.ChipRadius);
         using var fill = new SolidBrush(color);
-        using var brush = new SolidBrush(Theme.Text);
+        using var brush = new SolidBrush(Color.White);
         using var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
         g.FillPath(fill, path);
         g.DrawString(text, font, brush, rect, format);

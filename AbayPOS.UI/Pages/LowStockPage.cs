@@ -13,9 +13,9 @@ internal sealed class LowStockPage : UserControl
     public LowStockPage()
     {
         Dock = DockStyle.Fill;
-        BackColor = Color.Transparent;
+        BackColor = Theme.Base;
         var panel = new GlassPanel { Dock = DockStyle.Fill, Padding = new Padding(16) };
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, BackColor = Color.Transparent };
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, BackColor = Theme.Base };
         layout.Controls.Add(new Label { Text = "Low stock", Font = Theme.FontHeading(), ForeColor = Theme.Text, Dock = DockStyle.Fill }, 0, 0);
         GridTheme.Apply(_grid);
         _grid.Dock = DockStyle.Fill;

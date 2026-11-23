@@ -127,7 +127,7 @@ public sealed class CartList : Control
         var row = RowBounds(index);
         if (index == _flashIndex)
         {
-            using var flash = new SolidBrush(Color.FromArgb(70, Theme.Accent));
+            using var flash = new SolidBrush(Theme.Selection);
             g.FillRectangle(flash, row);
         }
         else if (index == _selected)

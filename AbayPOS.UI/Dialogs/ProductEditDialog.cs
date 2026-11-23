@@ -28,7 +28,7 @@ public sealed class ProductEditDialog : Form
         BackColor = Theme.Base;
         ShowInTaskbar = false;
         var surface = new GlassPanel { Dock = DockStyle.Fill, Padding = new Padding(24) };
-        var grid = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 12, BackColor = Color.Transparent };
+        var grid = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 12, BackColor = Theme.Base };
         for (var i = 0; i < 11; i++)
             grid.RowStyles.Add(new RowStyle(SizeType.Absolute, i is 0 or 10 ? 40 : 44));
         grid.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
@@ -43,6 +43,7 @@ public sealed class ProductEditDialog : Form
         _reorder.Value = product.ReorderLevel;
         _supplier.Dock = DockStyle.Fill;
         _supplier.DropDownStyle = ComboBoxStyle.DropDownList;
+        _supplier.FlatStyle = FlatStyle.Flat;
         _supplier.BackColor = Theme.InputFill;
         _supplier.ForeColor = Theme.Text;
         _supplier.Items.Add(new Supplier { Id = 0, Name = "(none)" });
@@ -69,7 +70,7 @@ public sealed class ProductEditDialog : Form
         Add(grid, 8, _reorder);
         Add(grid, 9, _supplier);
         grid.Controls.Add(_error, 0, 10);
-        var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft, BackColor = Color.Transparent };
+        var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft, BackColor = Theme.Base };
         var save = new RoundButton { Text = "Save", Width = 120, Height = 44, IsPrimary = true };
         save.Click += (_, _) => TrySave();
         var cancel = new RoundButton { Text = "Cancel", Width = 110, Height = 44, FillColor = Theme.CancelGlass, BorderColor = Theme.GlassBorder };
@@ -79,6 +80,7 @@ public sealed class ProductEditDialog : Form
         grid.Controls.Add(buttons, 0, 11);
         surface.Controls.Add(grid);
         Controls.Add(surface);
+        Surface.Adopt(this, Theme.Base);
         AcceptButton = save;
         Load += (_, _) => GlassHelper.ApplyToWindow(this);
     }

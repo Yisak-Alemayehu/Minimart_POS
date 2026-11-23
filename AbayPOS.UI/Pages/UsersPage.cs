@@ -18,14 +18,14 @@ internal sealed class UsersPage : UserControl
     {
         _session = session;
         Dock = DockStyle.Fill;
-        BackColor = Color.Transparent;
+        BackColor = Theme.Base;
         var panel = new GlassPanel { Dock = DockStyle.Fill, Padding = new Padding(16) };
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 3, BackColor = Color.Transparent };
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 3, BackColor = Theme.Base };
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         layout.Controls.Add(new Label { Text = "Users", Font = Theme.FontHeading(), ForeColor = Theme.Text, Dock = DockStyle.Fill }, 0, 0);
-        var toolbar = new FlowLayoutPanel { Dock = DockStyle.Fill, BackColor = Color.Transparent };
+        var toolbar = new FlowLayoutPanel { Dock = DockStyle.Fill, BackColor = Theme.Base };
         toolbar.Controls.Add(Btn("Add", true, () => Create()));
         toolbar.Controls.Add(Btn("Edit", false, Edit));
         toolbar.Controls.Add(Btn("Deactivate", false, Deactivate));

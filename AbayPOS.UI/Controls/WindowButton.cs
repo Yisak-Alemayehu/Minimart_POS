@@ -11,11 +11,11 @@ public sealed class WindowButton : Control
 
     public WindowButton()
     {
-        SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.SupportsTransparentBackColor | ControlStyles.ResizeRedraw, true);
+        SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
         Size = new Size(42, 32);
         Margin = new Padding(0, 14, 0, 0);
         Cursor = Cursors.Hand;
-        BackColor = Color.Transparent;
+        BackColor = Theme.Base;
         DoubleBuffered = true;
         TabStop = false;
         AccessibleName = "Window control";
@@ -43,6 +43,8 @@ public sealed class WindowButton : Control
 
     protected override void OnPaint(PaintEventArgs e)
     {
+        var backdrop = Parent?.BackColor ?? Theme.Base;
+        e.Graphics.Clear(backdrop.A == 255 ? backdrop : Theme.Base);
         e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
         if (_hovered)
         {

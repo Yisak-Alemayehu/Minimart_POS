@@ -18,7 +18,7 @@ public sealed class DiscountDialog : Form
         ClientSize = new Size(380, 240);
         BackColor = Theme.Base;
         var surface = new GlassPanel { Dock = DockStyle.Fill, Padding = new Padding(24) };
-        var grid = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 4, BackColor = Color.Transparent };
+        var grid = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 4, BackColor = Theme.Base };
         grid.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
         grid.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
         grid.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
@@ -37,7 +37,7 @@ public sealed class DiscountDialog : Form
         grid.Controls.Add(_value, 0, 1);
         _percent = new CheckBox { Text = "Percent (%)  —  cashiers max 10%", ForeColor = Theme.Text, Dock = DockStyle.Fill, Checked = isPercent };
         grid.Controls.Add(_percent, 0, 2);
-        var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft, BackColor = Color.Transparent };
+        var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft, BackColor = Theme.Base };
         var ok = new RoundButton { Text = "Apply  F4", Width = 130, Height = 44, IsPrimary = true };
         ok.Click += (_, _) => { DialogResult = DialogResult.OK; Close(); };
         var cancel = new RoundButton { Text = "Cancel", Width = 110, Height = 44, FillColor = Theme.CancelGlass, BorderColor = Theme.GlassBorder };
@@ -47,6 +47,7 @@ public sealed class DiscountDialog : Form
         grid.Controls.Add(buttons, 0, 3);
         surface.Controls.Add(grid);
         Controls.Add(surface);
+        Surface.Adopt(this, Theme.Base);
         AcceptButton = ok;
         CancelButton = cancel;
         Load += (_, _) => GlassHelper.ApplyToWindow(this);

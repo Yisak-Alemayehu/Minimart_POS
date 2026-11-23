@@ -28,7 +28,7 @@ public sealed class SupplierEditDialog : Form
         _address.Text = supplier.Address;
         _active.Checked = supplier.IsActive;
         var surface = new GlassPanel { Dock = DockStyle.Fill, Padding = new Padding(24) };
-        var grid = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 8, BackColor = Color.Transparent };
+        var grid = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 8, BackColor = Theme.Base };
         grid.Controls.Add(new Label { Text = Text, Font = Theme.FontHeading(), ForeColor = Theme.Text, Dock = DockStyle.Fill }, 0, 0);
         foreach (var box in new Control[] { _name, _phone, _email, _address })
             box.Dock = DockStyle.Fill;
@@ -38,7 +38,7 @@ public sealed class SupplierEditDialog : Form
         grid.Controls.Add(_address, 0, 4);
         grid.Controls.Add(_active, 0, 5);
         grid.Controls.Add(_error, 0, 6);
-        var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft, BackColor = Color.Transparent };
+        var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft, BackColor = Theme.Base };
         var save = new RoundButton { Text = "Save", Width = 120, Height = 44, IsPrimary = true };
         save.Click += (_, _) =>
         {
@@ -63,6 +63,7 @@ public sealed class SupplierEditDialog : Form
         grid.Controls.Add(buttons, 0, 7);
         surface.Controls.Add(grid);
         Controls.Add(surface);
+        Surface.Adopt(this, Theme.Base);
         Load += (_, _) => GlassHelper.ApplyToWindow(this);
     }
 

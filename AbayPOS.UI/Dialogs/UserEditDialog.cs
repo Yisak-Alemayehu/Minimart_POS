@@ -27,12 +27,13 @@ public sealed class UserEditDialog : Form
         _fullName.Text = fullName;
         _role.Dock = DockStyle.Fill;
         _role.DropDownStyle = ComboBoxStyle.DropDownList;
+        _role.FlatStyle = FlatStyle.Flat;
         _role.Items.AddRange([UserRole.Cashier, UserRole.Manager]);
         _role.SelectedItem = role;
         _role.BackColor = Theme.InputFill;
         _role.ForeColor = Theme.Text;
         var surface = new GlassPanel { Dock = DockStyle.Fill, Padding = new Padding(24) };
-        var grid = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 7, BackColor = Color.Transparent };
+        var grid = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 7, BackColor = Theme.Base };
         grid.Controls.Add(new Label { Text = Text, Font = Theme.FontHeading(), ForeColor = Theme.Text, Dock = DockStyle.Fill }, 0, 0);
         _username.Dock = DockStyle.Fill;
         _fullName.Dock = DockStyle.Fill;
@@ -43,7 +44,7 @@ public sealed class UserEditDialog : Form
         if (create)
             grid.Controls.Add(_password, 0, 4);
         grid.Controls.Add(_error, 0, 5);
-        var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft, BackColor = Color.Transparent };
+        var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft, BackColor = Theme.Base };
         var save = new RoundButton { Text = "Save", Width = 120, Height = 44, IsPrimary = true };
         save.Click += (_, _) => TrySave();
         var cancel = new RoundButton { Text = "Cancel", Width = 110, Height = 44, FillColor = Theme.CancelGlass, BorderColor = Theme.GlassBorder };
@@ -53,6 +54,7 @@ public sealed class UserEditDialog : Form
         grid.Controls.Add(buttons, 0, 6);
         surface.Controls.Add(grid);
         Controls.Add(surface);
+        Surface.Adopt(this, Theme.Base);
         Load += (_, _) => GlassHelper.ApplyToWindow(this);
     }
 

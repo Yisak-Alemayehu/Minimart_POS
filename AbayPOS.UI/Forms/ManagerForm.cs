@@ -10,11 +10,11 @@ namespace AbayPOS.UI.Forms;
 public sealed class ManagerForm : ThemedForm
 {
     private readonly Session _session;
-    private readonly Panel _content = new() { Dock = DockStyle.Fill, BackColor = Color.Transparent };
+    private readonly Panel _content = new() { Dock = DockStyle.Fill, BackColor = Theme.Base };
     private readonly Dictionary<string, UserControl> _pages = new(StringComparer.Ordinal);
     private readonly Dictionary<string, RoundButton> _nav = new(StringComparer.Ordinal);
     private readonly Label _clock = new();
-    private readonly Label _lowBadge = new();
+    private readonly Label _title = new();
     private readonly System.Windows.Forms.Timer _timer = new() { Interval = 1000 };
     private string _current = "Dashboard";
 
@@ -40,11 +40,11 @@ public sealed class ManagerForm : ThemedForm
 
     private void Build()
     {
-        var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, Padding = new Padding(12), BackColor = Color.Transparent };
+        var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, Padding = new Padding(12), BackColor = Theme.Base };
         root.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, Theme.SidebarWidth));
         root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         root.Controls.Add(BuildSidebar(), 0, 0);
-        var main = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, BackColor = Color.Transparent };
+        var main = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, BackColor = Theme.Base };
         main.RowStyles.Add(new RowStyle(SizeType.Absolute, Theme.TopBarHeight));
         main.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         main.Controls.Add(BuildTopBar(), 0, 0);
@@ -52,45 +52,43 @@ public sealed class ManagerForm : ThemedForm
         root.Controls.Add(main, 1, 0);
         Controls.Add(root);
 
-        Register("Dashboard", new DashboardPage(_session));
+        var dashboard = new DashboardPage(_session);
+        dashboard.ViewProducts += (_, _) => ShowPage("Products");
+        Register("Dashboard", dashboard);
         Register("Products", new ProductsPage(_session));
         Register("Receive Stock", new ReceiveStockPage(_session));
         Register("Suppliers", new SuppliersPage(_session));
         Register("Reports", new ReportsPage(_session));
         Register("Sales History", new SalesHistoryPage(_session));
         var low = new LowStockPage();
-        low.CountChanged += (_, count) => _lowBadge.Text = count > 0 ? count.ToString() : string.Empty;
+        low.CountChanged += (_, count) =>
+        {
+            if (_nav.TryGetValue("Low Stock", out var button))
+                button.Badge = count > 0 ? count.ToString() : string.Empty;
+        };
         Register("Low Stock", low);
         Register("Users", new UsersPage(_session));
+        Surface.Adopt(this, Theme.Base);
     }
 
     private Control BuildSidebar()
     {
-        var sidebar = new GlassPanel { Dock = DockStyle.Fill, Margin = new Padding(0, 0, 12, 0), Padding = new Padding(12, 16, 12, 12), FillColor = Theme.SidebarGlass };
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, BackColor = Color.Transparent };
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 80));
+        var sidebar = new GlassPanel { Dock = DockStyle.Fill, Margin = new Padding(0, 0, 12, 0), Padding = new Padding(12, 16, 12, 12), FillColor = Theme.Sidebar };
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, BackColor = Theme.Sidebar };
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 84));
         var keys = new[] { "Dashboard", "Products", "Receive Stock", "Suppliers", "Reports", "Sales History", "Low Stock", "Users" };
         foreach (var _ in keys)
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
-        var logo = new Panel { Dock = DockStyle.Fill, BackColor = Color.Transparent };
-        logo.Controls.Add(new Label { Text = "Abay", Font = Theme.Font(22, FontStyle.Bold), ForeColor = Theme.Text, AutoSize = true, Location = new Point(4, 8) });
-        logo.Controls.Add(new Label { Text = "Manager", Font = Theme.FontHint(), ForeColor = Theme.Accent, AutoSize = true, Location = new Point(6, 44) });
+        var logo = new Panel { Dock = DockStyle.Fill, BackColor = Theme.Sidebar };
+        logo.Controls.Add(new Label { Text = "AbayPOS", Font = Theme.Font(20, FontStyle.Bold), ForeColor = Theme.Accent, BackColor = Theme.Sidebar, AutoSize = true, Location = new Point(4, 6) });
+        logo.Controls.Add(new Label { Text = "Manager", Font = Theme.FontHint(), ForeColor = Theme.TextSecondary, BackColor = Theme.Sidebar, AutoSize = true, Location = new Point(6, 42) });
         layout.Controls.Add(logo, 0, 0);
         var row = 1;
         foreach (var key in keys)
         {
             var button = CreateNav(key, key == "Dashboard");
-            if (key == "Low Stock")
-            {
-                _lowBadge.AutoSize = true;
-                _lowBadge.ForeColor = Theme.Warning;
-                _lowBadge.Font = Theme.Font(9, FontStyle.Bold);
-                _lowBadge.Location = new Point(150, 14);
-                button.Controls.Add(_lowBadge);
-            }
-
             button.Click += (_, _) => ShowPage(key);
             _nav[key] = button;
             layout.Controls.Add(button, 0, row++);
@@ -109,21 +107,32 @@ public sealed class ManagerForm : ThemedForm
 
     private Control BuildTopBar()
     {
-        var bar = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, BackColor = Color.Transparent };
-        bar.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 70));
-        bar.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 30));
-        var title = new Label { Text = "AbayPOS", Dock = DockStyle.Fill, Font = Theme.Font(15, FontStyle.Bold), ForeColor = Theme.Text, TextAlign = ContentAlignment.MiddleLeft };
+        var bar = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 4, BackColor = Theme.Base };
+        bar.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        bar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 180));
+        bar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 88));
+        bar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 146));
+        _title.Text = "Dashboard";
+        _title.Dock = DockStyle.Fill;
+        _title.Font = Theme.Font(18, FontStyle.Bold);
+        _title.ForeColor = Theme.Text;
+        _title.BackColor = Theme.Base;
+        _title.TextAlign = ContentAlignment.MiddleLeft;
+        var title = _title;
         title.MouseDown += DragWindow;
+        bar.MouseDown += DragWindow;
         bar.Controls.Add(title, 0, 0);
-        var right = CreateWindowButtons(this);
-        _clock.AutoSize = true;
-        _clock.ForeColor = Theme.TextSecondary;
-        _clock.Font = Theme.FontHint();
-        _clock.Margin = new Padding(12, 21, 0, 0);
-        var name = new Label { Text = _session.User.FullName, AutoSize = true, ForeColor = Theme.Text, Font = Theme.Font(9, FontStyle.Bold), Margin = new Padding(8, 21, 0, 0) };
-        right.Controls.Add(_clock);
-        right.Controls.Add(name);
-        bar.Controls.Add(right, 1, 0);
+        var name = new Label { Text = _session.User.FullName, Dock = DockStyle.Fill, ForeColor = Theme.Text, BackColor = Theme.Base, Font = Theme.Font(9, FontStyle.Bold), TextAlign = ContentAlignment.MiddleRight };
+        var clock = _clock;
+        clock.Text = DateTime.Now.ToString("hh:mm tt");
+        clock.Dock = DockStyle.Fill;
+        clock.ForeColor = Theme.TextSecondary;
+        clock.BackColor = Theme.Base;
+        clock.Font = Theme.FontHint();
+        clock.TextAlign = ContentAlignment.MiddleRight;
+        bar.Controls.Add(name, 1, 0);
+        bar.Controls.Add(clock, 2, 0);
+        bar.Controls.Add(CreateWindowButtons(this), 3, 0);
         return bar;
     }
 
@@ -138,10 +147,11 @@ public sealed class ManagerForm : ThemedForm
     private void ShowPage(string key)
     {
         _current = key;
+        _title.Text = key;
         foreach (var pair in _pages)
             pair.Value.Visible = pair.Key == key;
         foreach (var pair in _nav)
-            pair.Value.FillColor = pair.Key == key ? Theme.Accent : Theme.NavGlass;
+            pair.Value.FillColor = pair.Key == key ? Theme.Accent : Theme.Card;
         if (_pages[key] is DashboardPage dashboard)
             dashboard.Reload();
         if (_pages[key] is LowStockPage low)
@@ -153,10 +163,26 @@ public sealed class ManagerForm : ThemedForm
     private static RoundButton CreateNav(string text, bool active) => new()
     {
         Text = text,
+        Icon = NavIcon(text),
         Dock = DockStyle.Fill,
         Margin = new Padding(0, 2, 0, 2),
-        FillColor = active ? Theme.Accent : Theme.NavGlass,
+        FillColor = active ? Theme.Accent : Theme.Card,
+        BorderColor = Color.Empty,
         LabelAlign = ContentAlignment.MiddleLeft,
         Font = Theme.Font(10, active ? FontStyle.Bold : FontStyle.Regular)
+    };
+
+    private static string NavIcon(string text) => text switch
+    {
+        "Dashboard" => "\uE80F",
+        "Products" => "\uE7B8",
+        "Receive Stock" => "\uE8F1",
+        "Suppliers" => "\uE716",
+        "Reports" => "\uE9D2",
+        "Sales History" => "\uE81C",
+        "Low Stock" => "\uE7BA",
+        "Users" => "\uE77B",
+        "Log out" => "\uE8AC",
+        _ => "\uE10F"
     };
 }

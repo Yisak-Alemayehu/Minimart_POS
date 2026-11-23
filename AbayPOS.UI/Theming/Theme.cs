@@ -2,50 +2,58 @@ using System.Drawing.Text;
 
 namespace AbayPOS.UI.Theming;
 
-/// <summary>Single visual system for every AbayPOS form. No magic numbers in forms.</summary>
+/// <summary>Light retail visual system. Every control color is opaque.</summary>
 public static class Theme
 {
-    public static readonly Color Base = Color.FromArgb(0x0D, 0x0B, 0x14);
-    public static readonly Color GlassFill = Color.FromArgb(175, 0x1C, 0x18, 0x2F);
-    public static readonly Color GlassSolid = Color.FromArgb(0x1C, 0x18, 0x2F);
-    public static readonly Color GlassBorder = Color.FromArgb(28, 255, 255, 255);
-    public static readonly Color Highlight = Color.FromArgb(38, 255, 255, 255);
-    public static readonly Color Accent = Color.FromArgb(0xF5, 0x7C, 0x1F);
-    public static readonly Color AccentHover = Color.FromArgb(255, 143, 51);
-    public static readonly Color AccentPressed = Color.FromArgb(220, 100, 18);
-    public static readonly Color Success = Color.FromArgb(0x22, 0xC5, 0x5E);
-    public static readonly Color Warning = Color.FromArgb(0xF5, 0x9E, 0x0B);
-    public static readonly Color Danger = Color.FromArgb(0xEF, 0x44, 0x44);
-    public static readonly Color Text = Color.FromArgb(0xF5, 0xF5, 0xF7);
-    public static readonly Color TextSecondary = Color.FromArgb(0xA1, 0xA1, 0xAA);
-    public static readonly Color SidebarGlass = Color.FromArgb(190, 0x16, 0x13, 0x24);
-    public static readonly Color SearchGlass = Color.FromArgb(150, 0x1C, 0x18, 0x2F);
-    public static readonly Color CancelGlass = Color.FromArgb(90, 0x1C, 0x18, 0x2F);
-    public static readonly Color NavGlass = Color.FromArgb(40, 255, 255, 255);
-    public static readonly Color NavActive = Color.FromArgb(40, 0xF5, 0x7C, 0x1F);
-    public static readonly Color InputFill = Color.FromArgb(0x18, 0x15, 0x27);
-    public static readonly Color CartSurface = Color.FromArgb(0x16, 0x13, 0x24);
-    public static readonly Color Selection = Color.FromArgb(90, 0xF5, 0x7C, 0x1F);
-    public static readonly Color Tile = Color.FromArgb(140, 0x23, 0x1E, 0x37);
-    public static readonly Color TileHover = Color.FromArgb(175, 0x2A, 0x22, 0x3C);
-    public static readonly Color TileMuted = Color.FromArgb(80, 0x23, 0x1E, 0x37);
-    public static readonly Color Overlay = Color.FromArgb(160, 0, 0, 0);
+    public static readonly Color Base = Color.FromArgb(0xF3, 0xF6, 0xFB);
+    public static readonly Color Card = Color.White;
+    public static readonly Color GlassSolid = Card;
+    public static readonly Color GlassFill = Card;
+    public static readonly Color Sidebar = Color.White;
+    public static readonly Color SidebarGlass = Sidebar;
+    public static readonly Color CartSurface = Color.White;
+    public static readonly Color NavRaised = Color.FromArgb(0xE8, 0xF0, 0xFE);
+    public static readonly Color NavGlass = NavRaised;
+    public static readonly Color CancelGlass = Color.FromArgb(0xF1, 0xF5, 0xF9);
+    public static readonly Color Search = Color.White;
+    public static readonly Color SearchGlass = Search;
+    public static readonly Color Tile = Color.White;
+    public static readonly Color TileHover = Color.FromArgb(0xF8, 0xFA, 0xFC);
+    public static readonly Color TileMuted = Color.FromArgb(0xF1, 0xF5, 0xF9);
+    public static readonly Color Line = Color.FromArgb(0xE2, 0xE8, 0xF0);
+    public static readonly Color GlassBorder = Line;
+    public static readonly Color Highlight = NavRaised;
+    public static readonly Color Accent = Color.FromArgb(0x2F, 0x6F, 0xED);
+    public static readonly Color AccentHover = Color.FromArgb(0x4C, 0x84, 0xF5);
+    public static readonly Color AccentPressed = Color.FromArgb(0x1D, 0x4E, 0xD8);
+    public static readonly Color NavActive = Accent;
+    public static readonly Color OnAccent = Color.White;
+    public static readonly Color Brand = Color.FromArgb(0x1D, 0x4E, 0xD8);
+    public static readonly Color Success = Color.FromArgb(0x16, 0xA3, 0x4A);
+    public static readonly Color Warning = Color.FromArgb(0xD9, 0x77, 0x06);
+    public static readonly Color Danger = Color.FromArgb(0xDC, 0x26, 0x26);
+    public static readonly Color Text = Color.FromArgb(0x0F, 0x17, 0x2A);
+    public static readonly Color TextSecondary = Color.FromArgb(0x64, 0x74, 0x8B);
+    public static readonly Color InputFill = Color.FromArgb(0xF8, 0xFA, 0xFC);
+    public static readonly Color Selection = Color.FromArgb(0xDB, 0xEA, 0xFE);
+    public static readonly Color GridLine = Color.FromArgb(0xE2, 0xE8, 0xF0);
+    public static readonly Color Overlay = Color.FromArgb(0xE2, 0xE8, 0xF0);
     public static readonly Color FocusRing = Accent;
-    public static readonly Color Shadow = Color.FromArgb(70, 0, 0, 0);
-    public static readonly Color Disabled = Color.FromArgb(102, 0xF5, 0xF5, 0xF7);
-    public static readonly Color BadgeFill = Color.FromArgb(45, 255, 255, 255);
-    public static readonly Color BadgeBorder = Color.FromArgb(90, 255, 255, 255);
+    public static readonly Color Shadow = Color.FromArgb(0xE2, 0xE8, 0xF0);
+    public static readonly Color Disabled = Color.FromArgb(0x94, 0xA3, 0xB8);
+    public static readonly Color BadgeFill = Color.FromArgb(0xE8, 0xF0, 0xFE);
+    public static readonly Color BadgeBorder = Color.FromArgb(0xCB, 0xD5, 0xE1);
 
     public const int Space = 8;
-    public const int SidebarWidth = 200;
-    public const int TopBarHeight = 64;
+    public const int SidebarWidth = 228;
+    public const int TopBarHeight = 72;
     public const int MinimumWidth = 1280;
     public const int MinimumHeight = 720;
-    public const int PayButtonHeight = 56;
+    public const int PayButtonHeight = 52;
     public const int TouchTarget = 44;
-    public const int PanelRadius = 18;
+    public const int PanelRadius = 16;
     public const int ButtonRadius = 12;
-    public const int ChipRadius = 8;
+    public const int ChipRadius = 10;
     public const int InputRadius = 12;
     public const int AnimationMs = 160;
 
@@ -70,4 +78,11 @@ public static class Theme
 
         return "Segoe UI";
     }
+
+    public static Color Solid(Color color) => color.A == 255 ? color : Base;
+
+    public static bool IsLight(Color color) =>
+        (color.R * 0.299 + color.G * 0.587 + color.B * 0.114) > 170;
+
+    public static Color On(Color fill) => IsLight(fill) ? Text : OnAccent;
 }

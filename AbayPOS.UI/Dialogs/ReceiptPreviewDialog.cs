@@ -19,7 +19,7 @@ public sealed class ReceiptPreviewDialog : Form
         var printer = new ReceiptPrinter();
         var document = printer.CreateDocument(sale);
         var surface = new GlassPanel { Dock = DockStyle.Fill, Padding = new Padding(16) };
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, BackColor = Color.Transparent };
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, BackColor = Theme.Base };
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 56));
         var preview = new PrintPreviewControl
@@ -30,7 +30,7 @@ public sealed class ReceiptPreviewDialog : Form
             BackColor = Color.White
         };
         layout.Controls.Add(preview, 0, 0);
-        var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft, BackColor = Color.Transparent };
+        var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft, BackColor = Theme.Base };
         var print = new RoundButton { Text = "Print", Width = 120, Height = 44, IsPrimary = true };
         print.Click += (_, _) =>
         {
@@ -52,6 +52,7 @@ public sealed class ReceiptPreviewDialog : Form
         layout.Controls.Add(buttons, 0, 1);
         surface.Controls.Add(layout);
         Controls.Add(surface);
+        Surface.Adopt(this, Theme.Base);
         Load += (_, _) => GlassHelper.ApplyToWindow(this);
     }
 
