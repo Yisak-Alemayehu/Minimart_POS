@@ -6,6 +6,9 @@ using AbayPOS.UI.Theming;
 namespace AbayPOS.UI.Controls;
 
 /// <summary>Rounded input that hosts a real TextBox so IME, passwords, and Enter still work.</summary>
+[ToolboxItem(true)]
+[Category("AbayPOS")]
+[Description("Rounded glass-styled text box.")]
 public sealed class GlassTextBox : Panel
 {
     private readonly TextBox _inner = new();
@@ -44,14 +47,18 @@ public sealed class GlassTextBox : Panel
         set => _inner.PasswordChar = value;
     }
 
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [Category("AbayPOS")]
+    [DefaultValue(false)]
+    [Description("Mask input using the system password character.")]
     public bool UseSystemPasswordChar
     {
         get => _inner.UseSystemPasswordChar;
         set => _inner.UseSystemPasswordChar = value;
     }
 
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [Category("AbayPOS")]
+    [DefaultValue("")]
+    [Description("Placeholder hint text.")]
     public string Placeholder { get; set; } = string.Empty;
 
     public new event EventHandler? TextChanged;

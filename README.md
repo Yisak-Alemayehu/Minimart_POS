@@ -67,6 +67,18 @@ The shell uses the standard Windows caption, so snap, resize, and maximize behav
 
 Screenshots of the running screens are in `docs/screenshots/`.
 
+## Editing the UI in Visual Studio
+
+- Open `AbayPOS.sln` in Visual Studio 2026 (the project targets .NET 10).
+- Build the solution once (F6) so the **AbayPOS** Toolbox group appears (`RoundButton`, `GlassPanel`, `LoginField`, `GlassTextBox`, `ProductTile`, `CartList`, `BarChart`, `KpiCard`, `ChipButton`, `FittedText`, and the manager pages).
+- In Solution Explorer, right-click a form or page (for example `Forms/LoginForm.cs`) → **View Designer**. Do not only open the `.cs` file in the code editor.
+- Drag controls from the Toolbox onto the surface. Set `Dock`, `Anchor`, `Text`, `Font`, and AbayPOS properties (`IsPrimary`, `Caption`, `Placeholder`, `FillColor`, …) in the Properties window. Named event handlers show on the Events tab.
+- Designer files (`*.Designer.cs`, `*.resx`) are generated — do not rewrite layout in the constructor.
+- Dynamic pieces stay in code: product tiles, category chips, manager page swapping, payment quick-amount buttons, grid rows.
+- Press F5 to run. Design-time sample data (sample cart lines, sample chart, sample product tile) does not appear at runtime.
+
+Designer surface screenshots: `docs/screenshots/designer-*.png`.
+
 Product photos are files, not blobs. The database stores only the file name in `Products.ImagePath`. The files live in `%LocalAppData%\AbayPOS\images\products\` as `{productId}_{guid}.jpg`. Replacing or removing a photo deletes the previous file. The register, the cart, and the products grid read those files through `IProductImageStore` and keep small decoded copies in memory while you scroll.
 
 ## Keyboard shortcuts (cashier)

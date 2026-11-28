@@ -9,6 +9,9 @@ using AbayPOS.UI.Theming;
 namespace AbayPOS.UI.Controls;
 
 /// <summary>Owner-drawn cart. Only visible rows are painted. Hit-tests − / + / ×.</summary>
+[ToolboxItem(true)]
+[Category("AbayPOS")]
+[Description("Owner-drawn shopping cart list.")]
 public sealed class CartList : Control
 {
     private readonly ToolTip _tip = new();
@@ -35,6 +38,15 @@ public sealed class CartList : Control
         _scroll.LargeChange = Theme.Scale(64) * 3;
         _scroll.Scroll += (_, _) => Invalidate();
         Controls.Add(_scroll);
+        if (DesignTime.IsActive())
+        {
+            SetLines(
+            [
+                new CartLine { ProductName = "Milk 1L", UnitPrice = 85m, Qty = 2, Emoji = "🥛" },
+                new CartLine { ProductName = "Bread", UnitPrice = 45m, Qty = 1, Emoji = "🍞" }
+            ]);
+        }
+
         _flash.Tick += (_, _) =>
         {
             var flashed = _flashIndex;

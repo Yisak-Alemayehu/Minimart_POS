@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using AbayPOS.UI.Controls;
 using AbayPOS.UI.Imaging;
@@ -6,110 +7,83 @@ using AbayPOS.UI.Theming;
 namespace AbayPOS.UI.Dialogs;
 
 /// <summary>Square crop with zoom, rotation and a live tile preview.</summary>
-public sealed class ImageCropDialog : DialogForm
+public sealed partial class ImageCropDialog : DialogForm
 {
-    private readonly CropSurface _surface;
-    private readonly CropPreview _preview = new();
-    private readonly TrackBar _zoom = new() { Minimum = 100, Maximum = 400, Value = 100, TickFrequency = 50, AutoSize = false, Height = Theme.Scale(36), Width = Theme.Scale(180) };
-
-    public ImageCropDialog(Bitmap source)
+    public ImageCropDialog()
     {
-        Text = "AbayPOS – Crop image";
-        ClientSize = new Size(Theme.Scale(860), Theme.Scale(560));
-        MinimumSize = new Size(Theme.Scale(720), Theme.Scale(480));
-        _surface = new CropSurface(source) { Dock = DockStyle.Fill };
-        _surface.CropChanged += (_, _) => _preview.Invalidate();
-        _preview.Source = _surface;
+        InitializeComponent();
+        cropPreview.Source = cropSurface;
+        cropSurface.CropChanged += (_, _) => cropPreview.Invalidate();
+        btnApply.Click += (_, _) => Apply();
+        btnCancel.Click += (_, _) => { DialogResult = DialogResult.Cancel; Close(); };
+        btnRotateLeft.Click += (_, _) => Action(() => cropSurface.Rotate(false));
+        btnRotateRight.Click += (_, _) => Action(() => cropSurface.Rotate(true));
+        btnReset.Click += (_, _) => Action(cropSurface.ResetView);
+        trkZoom.ValueChanged += (_, _) => cropSurface.SetZoom(trkZoom.Value / 100f);
+        AcceptButton = btnApply;
+        CancelButton = btnCancel;
+    }
 
-        var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, BackColor = Theme.Base, Padding = new Padding(Theme.Scale(12)) };
-        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        root.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, Theme.Scale(220)));
-        root.Controls.Add(_surface, 0, 0);
-
-        var side = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, BackColor = Theme.Base };
-        side.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        side.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        side.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        side.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        _preview.Size = new Size(Theme.Scale(160), Theme.Scale(160));
-        _preview.Margin = new Padding(Theme.Scale(16), Theme.Scale(8), 0, Theme.Scale(8));
-        side.Controls.Add(new Label { Text = "Tile preview", AutoSize = true, ForeColor = Theme.TextSecondary, Font = Theme.FontHint() }, 0, 0);
-        side.Controls.Add(_preview, 0, 1);
-        var zoomRow = new FlowLayoutPanel { AutoSize = true, FlowDirection = FlowDirection.TopDown, BackColor = Theme.Base, WrapContents = false };
-        zoomRow.Controls.Add(new Label { Text = "Zoom", AutoSize = true, ForeColor = Theme.TextSecondary, Font = Theme.FontHint() });
-        _zoom.ValueChanged += (_, _) => _surface.SetZoom(_zoom.Value / 100f);
-        zoomRow.Controls.Add(_zoom);
-        side.Controls.Add(zoomRow, 0, 2);
-
-        var buttons = new FlowLayoutPanel { AutoSize = true, FlowDirection = FlowDirection.TopDown, BackColor = Theme.Base, WrapContents = false };
-        buttons.Controls.Add(Action("Rotate left", () => _surface.Rotate(false)));
-        buttons.Controls.Add(Action("Rotate right", () => _surface.Rotate(true)));
-        buttons.Controls.Add(Action("Reset", _surface.ResetView));
-        var apply = new RoundButton { Text = "Apply", Width = Theme.Scale(160), Height = Theme.Scale(40), IsPrimary = true, Margin = new Padding(0, Theme.Scale(12), 0, Theme.Scale(6)) };
-        apply.Click += (_, _) => Apply();
-        var cancel = new RoundButton { Text = "Cancel", Width = Theme.Scale(160), Height = Theme.Scale(40), FillColor = Theme.CancelGlass, BorderColor = Theme.GlassBorder };
-        cancel.Click += (_, _) => { DialogResult = DialogResult.Cancel; Close(); };
-        buttons.Controls.Add(apply);
-        buttons.Controls.Add(cancel);
-        side.Controls.Add(buttons, 0, 3);
-        root.Controls.Add(side, 1, 0);
-        Controls.Add(root);
-        Surface.Adopt(this, Theme.Base);
-        AcceptButton = apply;
-        CancelButton = cancel;
+    public ImageCropDialog(Bitmap source) : this()
+    {
+        cropSurface.SetSource(source);
+        trkZoom.Value = (int)Math.Round(cropSurface.Zoom * 100f);
     }
 
     public byte[]? Jpeg { get; private set; }
 
     private void Apply()
     {
-        using var cropped = _surface.Render();
+        using var cropped = cropSurface.Render();
         Jpeg = ProductImageCodec.ToJpeg(cropped);
         DialogResult = DialogResult.OK;
         Close();
     }
 
-    private RoundButton Action(string text, Action click)
+    private void Action(Action click)
     {
-        var button = new RoundButton { Text = text, Width = Theme.Scale(160), Height = Theme.Scale(36), Margin = new Padding(0, 0, 0, Theme.Scale(6)), FillColor = Theme.NavRaised, BorderColor = Theme.GlassBorder };
-        button.Click += (_, _) =>
-        {
-            click();
-            _zoom.Value = (int)Math.Round(_surface.Zoom * 100f);
-            _preview.Invalidate();
-        };
-        return button;
+        click();
+        trkZoom.Value = (int)Math.Round(cropSurface.Zoom * 100f);
+        cropPreview.Invalidate();
+    }
+
+    protected override void OnLoad(EventArgs e)
+    {
+        base.OnLoad(e);
+        if (DesignTime.IsActive(this))
+            return;
+        Theme.ApplyRuntime(this);
     }
 
     protected override void Dispose(bool disposing)
     {
         if (disposing)
-            _surface.DisposeSource();
+            cropSurface.DisposeSource();
         base.Dispose(disposing);
     }
 
     private sealed class CropPreview : Control
     {
-        [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public CropSurface? Source { get; set; }
 
         public CropPreview()
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
-            BackColor = Theme.Card;
+            BackColor = Color.FromArgb(0x1C, 0x18, 0x2F);
         }
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            e.Graphics.Clear(Theme.Card);
+            e.Graphics.Clear(BackColor);
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             var bounds = new Rectangle(0, 0, Width - 1, Height - 1);
-            using var clip = Gfx.Round(bounds, Theme.PanelRadius);
+            using var clip = Gfx.Round(bounds, 12);
             e.Graphics.SetClip(clip);
             if (Source?.SourceImage is { } image)
                 ProductImageCodec.DrawCover(e.Graphics, image, Source.CropPixels, bounds);
             e.Graphics.ResetClip();
-            e.Graphics.DrawPath(Theme.Stroke(Theme.GlassBorder), clip);
+            e.Graphics.DrawPath(new Pen(Color.FromArgb(0x2E, 0x29, 0x45)), clip);
         }
     }
 
@@ -122,11 +96,11 @@ public sealed class ImageCropDialog : DialogForm
         private Point _last;
         private RectangleF _cropAtDrag;
 
-        public CropSurface(Bitmap source)
+        public CropSurface()
         {
-            _source = source;
+            _source = DesignTime.IsActive() ? CreatePlaceholder() : new Bitmap(64, 64);
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
-            BackColor = Theme.Base;
+            BackColor = Color.FromArgb(0x0D, 0x0B, 0x14);
             ResetView();
         }
 
@@ -135,6 +109,13 @@ public sealed class ImageCropDialog : DialogForm
         public Bitmap SourceImage => _source;
         public float Zoom => _zoom;
         public Rectangle CropPixels => Rectangle.Round(_crop);
+
+        public void SetSource(Bitmap source)
+        {
+            _source.Dispose();
+            _source = source;
+            ResetView();
+        }
 
         public void SetZoom(float zoom)
         {
@@ -164,9 +145,21 @@ public sealed class ImageCropDialog : DialogForm
 
         public void DisposeSource() => _source.Dispose();
 
+        private static Bitmap CreatePlaceholder()
+        {
+            var bmp = new Bitmap(480, 360);
+            using var g = Graphics.FromImage(bmp);
+            g.Clear(Color.FromArgb(0x1A, 0x18, 0x24));
+            using var accent = new SolidBrush(Color.FromArgb(0xF5, 0x7C, 0x1F));
+            g.FillEllipse(accent, 140, 80, 200, 200);
+            using var text = new SolidBrush(Color.FromArgb(0xA1, 0xA1, 0xAA));
+            g.DrawString("Sample", new Font("Segoe UI", 16, FontStyle.Bold), text, 200, 28);
+            return bmp;
+        }
+
         protected override void OnPaint(PaintEventArgs e)
         {
-            e.Graphics.Clear(Theme.Base);
+            e.Graphics.Clear(BackColor);
             e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
             var view = ImageView();
             e.Graphics.DrawImage(_source, view);
@@ -176,8 +169,8 @@ public sealed class ImageCropDialog : DialogForm
             e.Graphics.FillRectangle(dim, new RectangleF(0, frame.Bottom, Width, Height - frame.Bottom));
             e.Graphics.FillRectangle(dim, new RectangleF(0, frame.Top, frame.Left, frame.Height));
             e.Graphics.FillRectangle(dim, new RectangleF(frame.Right, frame.Top, Width - frame.Right, frame.Height));
-            e.Graphics.DrawRectangle(Theme.Stroke(Theme.Accent, 2), Rectangle.Round(frame));
-            var third = Theme.Stroke(Color.FromArgb(160, 255, 255, 255));
+            e.Graphics.DrawRectangle(new Pen(Color.FromArgb(0xF5, 0x7C, 0x1F), 2), Rectangle.Round(frame));
+            var third = new Pen(Color.FromArgb(160, 255, 255, 255));
             for (var i = 1; i <= 2; i++)
             {
                 var x = frame.Left + frame.Width * i / 3f;
@@ -187,7 +180,7 @@ public sealed class ImageCropDialog : DialogForm
             }
 
             foreach (var corner in Corners(frame))
-                e.Graphics.FillRectangle(Theme.Brush(Theme.OnAccent), corner);
+                e.Graphics.FillRectangle(Brushes.White, corner);
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
@@ -215,9 +208,7 @@ public sealed class ImageCropDialog : DialogForm
             var dx = (e.X - _last.X) / scale;
             var dy = (e.Y - _last.Y) / scale;
             if (_drag == Drag.Move)
-            {
                 _crop = Clamp(new RectangleF(_cropAtDrag.X + (e.X - PointToStart().X) / scale, _cropAtDrag.Y + (e.Y - PointToStart().Y) / scale, _crop.Width, _crop.Height));
-            }
             else
             {
                 var grow = _drag is Drag.East or Drag.South or Drag.SouthEast ? Math.Max(dx, dy) : -Math.Max(dx, dy);
@@ -247,6 +238,7 @@ public sealed class ImageCropDialog : DialogForm
             _cropAtDrag = _crop;
             Invalidate();
             CropChanged?.Invoke(this, EventArgs.Empty);
+            _ = dy;
         }
 
         protected override void OnMouseWheel(MouseEventArgs e)
@@ -267,7 +259,7 @@ public sealed class ImageCropDialog : DialogForm
 
         private float ViewScale()
         {
-            var fit = Math.Min((Width - Theme.Scale(24)) / (float)_source.Width, (Height - Theme.Scale(24)) / (float)_source.Height);
+            var fit = Math.Min((Width - 24) / (float)_source.Width, (Height - 24) / (float)_source.Height);
             return Math.Max(0.01f, fit) * _zoom;
         }
 
@@ -288,7 +280,7 @@ public sealed class ImageCropDialog : DialogForm
 
         private static RectangleF[] Corners(RectangleF frame)
         {
-            var s = 10f;
+            const float s = 10f;
             return
             [
                 new RectangleF(frame.Left - s / 2, frame.Top - s / 2, s, s),

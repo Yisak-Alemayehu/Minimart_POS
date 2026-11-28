@@ -1,33 +1,41 @@
+using System.ComponentModel;
 using AbayPOS.UI.Controls;
 using AbayPOS.UI.Theming;
 
 namespace AbayPOS.UI.Pages;
 
-internal sealed class KpiCard : GlassPanel
+[ToolboxItem(true)]
+[Category("AbayPOS")]
+[Description("Dashboard KPI card with title and value.")]
+public sealed partial class KpiCard : GlassPanel
 {
-    private readonly FittedText _value = new() { ForeColor = Theme.Text, StartSize = 24f, MinSize = 14f, Money = true };
+    private ToolTip _titleTip = new();
 
-    public KpiCard(string title)
+    public KpiCard()
     {
-        Padding = new Padding(Theme.Scale(16));
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, BackColor = Theme.Card };
-        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        var heading = new Label
-        {
-            Text = title,
-            AutoSize = true,
-            AutoEllipsis = true,
-            MaximumSize = new Size(Theme.Scale(220), 0),
-            ForeColor = Theme.TextSecondary,
-            Font = Theme.FontHint(),
-            Dock = DockStyle.Fill
-        };
-        new ToolTip().SetToolTip(heading, title);
-        layout.Controls.Add(heading, 0, 0);
-        layout.Controls.Add(_value, 0, 1);
-        Controls.Add(layout);
+        InitializeComponent();
     }
 
-    public void SetValue(string value) => _value.SetValue(value);
+    public KpiCard(string title) : this() => Title = title;
+
+    [DefaultValue("KPI")]
+    public string Title
+    {
+        get => lblTitle.Text;
+        set
+        {
+            lblTitle.Text = value;
+            _titleTip.SetToolTip(lblTitle, value);
+        }
+    }
+
+    public void SetValue(string value) => txtValue.SetValue(value);
+
+    protected override void OnHandleCreated(EventArgs e)
+    {
+        base.OnHandleCreated(e);
+        if (DesignTime.IsActive(this))
+            return;
+        Theme.ApplyRuntime(this);
+    }
 }

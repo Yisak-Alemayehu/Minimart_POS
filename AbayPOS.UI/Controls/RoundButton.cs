@@ -5,6 +5,9 @@ using AbayPOS.UI.Theming;
 namespace AbayPOS.UI.Controls;
 
 /// <summary>Primary/secondary rounded button with hover, pressed, disabled, and focus ring.</summary>
+[ToolboxItem(true)]
+[Category("AbayPOS")]
+[Description("Rounded primary or secondary button.")]
 public class RoundButton : Button
 {
     private bool _hovered;
@@ -29,7 +32,8 @@ public class RoundButton : Button
     private Color _fill = Theme.Accent;
     private string _badge = string.Empty;
 
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [Category("AbayPOS")]
+    [Description("Button fill color.")]
     public Color FillColor
     {
         get => _fill;
@@ -44,13 +48,18 @@ public class RoundButton : Button
         }
     }
 
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [Category("AbayPOS")]
+    [Description("Optional border color.")]
     public Color BorderColor { get; set; } = Color.Empty;
 
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [Category("AbayPOS")]
+    [DefaultValue("")]
+    [Description("Optional Segoe icon glyph before the label.")]
     public string Icon { get; set; } = string.Empty;
 
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [Category("AbayPOS")]
+    [DefaultValue("")]
+    [Description("Optional badge text on the right.")]
     public string Badge
     {
         get => _badge;
@@ -61,11 +70,21 @@ public class RoundButton : Button
         }
     }
 
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [Category("AbayPOS")]
+    [DefaultValue(false)]
+    [Description("Whether this is a primary action button.")]
     public bool IsPrimary { get; set; }
 
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [Category("AbayPOS")]
+    [DefaultValue(ContentAlignment.MiddleCenter)]
+    [Description("Text alignment inside the button.")]
     public ContentAlignment LabelAlign { get; set; } = ContentAlignment.MiddleCenter;
+
+    public bool ShouldSerializeFillColor() => FillColor != Theme.Accent;
+    public void ResetFillColor() => FillColor = Theme.Accent;
+
+    public bool ShouldSerializeBorderColor() => BorderColor != Color.Empty;
+    public void ResetBorderColor() => BorderColor = Color.Empty;
 
     protected override void OnMouseEnter(EventArgs e)
     {

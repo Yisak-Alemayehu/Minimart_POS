@@ -190,4 +190,12 @@ public static class Theme
         (color.R * 0.299 + color.G * 0.587 + color.B * 0.114) > 170;
 
     public static Color On(Color fill) => IsLight(fill) ? Text : OnAccent;
+
+    /// <summary>Re-applies theme colors and fonts after Designer defaults at runtime load.</summary>
+    public static void ApplyRuntime(Control root)
+    {
+        if (DesignTime.IsActive(root))
+            return;
+        Surface.Adopt(root, Base);
+    }
 }
