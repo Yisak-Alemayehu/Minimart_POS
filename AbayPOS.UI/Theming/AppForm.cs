@@ -3,7 +3,7 @@ namespace AbayPOS.UI.Theming;
 /// <summary>Double-buffered main window. Child controls are composited so resize does not tear.</summary>
 public class AppForm : Form
 {
-    protected AppForm()
+    public AppForm()
     {
         AutoScaleMode = AutoScaleMode.Dpi;
         DoubleBuffered = true;

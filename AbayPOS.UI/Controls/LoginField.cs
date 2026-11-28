@@ -7,6 +7,9 @@ using AbayPOS.UI.Theming;
 namespace AbayPOS.UI.Controls;
 
 /// <summary>Opaque labeled login input. Avoids WinForms fake-transparency so labels never paint inside the field.</summary>
+[ToolboxItem(true)]
+[Category("AbayPOS")]
+[Description("Captioned login text field.")]
 public sealed class LoginField : UserControl
 {
     private readonly Label _caption = new();
@@ -71,14 +74,18 @@ public sealed class LoginField : UserControl
         IsPassword = password;
     }
 
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [Category("AbayPOS")]
+    [DefaultValue("")]
+    [Description("Caption shown above the field.")]
     public string Caption
     {
         get => _caption.Text;
         set => _caption.Text = value;
     }
 
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [Category("AbayPOS")]
+    [DefaultValue("")]
+    [Description("Placeholder hint inside the field.")]
     public string Placeholder { get; set; } = string.Empty;
 
     [AllowNull]
@@ -95,7 +102,9 @@ public sealed class LoginField : UserControl
         set => _error.Text = value;
     }
 
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [Category("AbayPOS")]
+    [DefaultValue(false)]
+    [Description("Whether to mask input as a password.")]
     public bool IsPassword
     {
         get => _secret;

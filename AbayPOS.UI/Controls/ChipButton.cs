@@ -5,10 +5,15 @@ using AbayPOS.UI.Theming;
 namespace AbayPOS.UI.Controls;
 
 /// <summary>Category filter chip.</summary>
+[ToolboxItem(true)]
+[Category("AbayPOS")]
+[Description("Rounded category filter chip.")]
 public sealed class ChipButton : Control
 {
     private bool _hovered;
     private bool _selected;
+
+    public ChipButton() : this("Chip") { }
 
     public ChipButton(string text)
     {
@@ -24,7 +29,9 @@ public sealed class ChipButton : Control
         Padding = new Padding(12, 0, 12, 0);
     }
 
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [DefaultValue(false)]
+    [Category("AbayPOS")]
+    [Description("Whether this chip is selected.")]
     public bool Selected
     {
         get => _selected;
@@ -54,7 +61,8 @@ public sealed class ChipButton : Control
         _hovered = false;
         Invalidate();
     }
-    protected override void OnClick(EventArgs e) { base.OnClick(e); }
+
+    protected override void OnClick(EventArgs e) => base.OnClick(e);
 
     protected override void OnPaint(PaintEventArgs e)
     {
@@ -72,8 +80,9 @@ public sealed class ChipButton : Control
     protected override void OnPaddingChanged(EventArgs e)
     {
         base.OnPaddingChanged(e);
-        using var g = CreateGraphics();
         var font = Theme.FontHint();
-        Width = Math.Max(64, (int)g.MeasureString(Text, font).Width + 28);
+        var size = TextRenderer.MeasureText(Text, font, new Size(int.MaxValue, int.MaxValue),
+            TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
+        Width = Math.Max(64, size.Width + Padding.Horizontal + 4);
     }
 }

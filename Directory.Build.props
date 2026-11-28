@@ -9,6 +9,7 @@
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <!-- Visual Studio was restoring only from Offline Packages; force nuget.org. -->
     <RestoreSources>https://api.nuget.org/v3/index.json</RestoreSources>
+  <EnableWindowsTargeting Condition="'$(OS)' != 'Windows_NT'">true</EnableWindowsTargeting>
   </PropertyGroup>
 </Project>
 

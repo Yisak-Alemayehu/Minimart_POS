@@ -5,6 +5,9 @@ using AbayPOS.UI.Theming;
 namespace AbayPOS.UI.Controls;
 
 /// <summary>Opaque rounded card. Children paint themselves; nothing is drawn over them.</summary>
+[ToolboxItem(true)]
+[Category("AbayPOS")]
+[Description("Rounded surface panel.")]
 public class GlassPanel : Panel
 {
     private Color _fill = Theme.Card;
@@ -16,10 +19,13 @@ public class GlassPanel : Panel
         ForeColor = Theme.Text;
     }
 
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [Category("AbayPOS")]
+    [DefaultValue(12)]
+    [Description("Corner radius in pixels (96 DPI).")]
     public int Radius { get; set; } = Theme.PanelRadius;
 
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [Category("AbayPOS")]
+    [Description("Panel fill color.")]
     public Color FillColor
     {
         get => _fill;
@@ -27,13 +33,19 @@ public class GlassPanel : Panel
         {
             _fill = Theme.Solid(value);
             BackColor = _fill;
-            Surface.Adopt(this, _fill);
+            if (!DesignTime.IsActive(this))
+                Surface.Adopt(this, _fill);
             Invalidate();
         }
     }
 
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [Category("AbayPOS")]
+    [DefaultValue(false)]
+    [Description("Whether to draw a drop shadow (reserved).")]
     public bool DrawShadow { get; set; }
+
+    public bool ShouldSerializeFillColor() => FillColor != Theme.Card;
+    public void ResetFillColor() => FillColor = Theme.Card;
 
     protected override CreateParams CreateParams
     {

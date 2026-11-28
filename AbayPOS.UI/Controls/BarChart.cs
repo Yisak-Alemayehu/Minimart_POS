@@ -5,6 +5,9 @@ using AbayPOS.UI.Theming;
 namespace AbayPOS.UI.Controls;
 
 /// <summary>Line chart of daily sales. No third-party chart library.</summary>
+[ToolboxItem(true)]
+[Category("AbayPOS")]
+[Description("Daily sales line chart.")]
 public sealed class BarChart : Control
 {
     private readonly ToolTip _tip = new();
@@ -17,6 +20,18 @@ public sealed class BarChart : Control
         SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
         BackColor = Theme.Card;
         AccessibleName = "Sales chart";
+        if (DesignTime.IsActive)
+        {
+            var today = DateTime.Today;
+            SetPoints(Enumerable.Range(0, 7)
+                .Select(i => new DailySalesPoint
+                {
+                    Date = today.AddDays(-6 + i),
+                    Total = 1200m + i * 350m,
+                    Transactions = 8 + i
+                })
+                .ToList());
+        }
     }
 
     public void SetPoints(IReadOnlyList<DailySalesPoint> points)

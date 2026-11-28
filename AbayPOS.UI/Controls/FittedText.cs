@@ -4,6 +4,9 @@ using AbayPOS.UI.Theming;
 namespace AbayPOS.UI.Controls;
 
 /// <summary>Draws one string at the largest font that fits. Money is never ellipsized.</summary>
+[ToolboxItem(true)]
+[Category("AbayPOS")]
+[Description("Auto-sized text display.")]
 public sealed class FittedText : Control
 {
     private readonly ToolTip _tip = new();
@@ -15,16 +18,24 @@ public sealed class FittedText : Control
         AccessibleRole = AccessibleRole.StaticText;
     }
 
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [Category("AbayPOS")]
+    [DefaultValue(24f)]
+    [Description("Maximum font size in points.")]
     public float StartSize { get; set; } = 24f;
 
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [Category("AbayPOS")]
+    [DefaultValue(14f)]
+    [Description("Minimum font size in points.")]
     public float MinSize { get; set; } = 14f;
 
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [Category("AbayPOS")]
+    [DefaultValue(false)]
+    [Description("Use money formatting rules.")]
     public bool Money { get; set; }
 
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [Category("AbayPOS")]
+    [DefaultValue(ContentAlignment.MiddleLeft)]
+    [Description("Text alignment.")]
     public ContentAlignment Align { get; set; } = ContentAlignment.MiddleLeft;
 
     public void SetValue(string? value)

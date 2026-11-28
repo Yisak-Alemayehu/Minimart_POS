@@ -3,24 +3,31 @@ namespace AbayPOS.UI.Theming;
 /// <summary>Native Windows chrome. Caption, snap, and resize come from the system.</summary>
 public class ThemedForm : AppForm
 {
-    protected ThemedForm(bool sizable = true)
+    public ThemedForm()
     {
         StartPosition = FormStartPosition.CenterScreen;
-        FormBorderStyle = sizable ? FormBorderStyle.Sizable : FormBorderStyle.FixedSingle;
-        MaximizeBox = sizable;
+        KeyPreview = true;
+        if (DesignTime.IsActive)
+        {
+            BackColor = Color.FromArgb(0x0D, 0x0B, 0x14);
+            ForeColor = Color.FromArgb(0xF5, 0xF5, 0xF7);
+            Font = new Font("Segoe UI", 13f);
+            return;
+        }
+
         BackColor = Theme.Base;
         Font = Theme.FontBody();
         ForeColor = Theme.Text;
-        KeyPreview = true;
         Icon = AppIcon.Load();
     }
 
     protected override void OnHandleCreated(EventArgs e)
     {
         base.OnHandleCreated(e);
-        WindowStyler.Apply(this);
+        if (!DesignTime.IsActive)
+            WindowStyler.Apply(this);
     }
 
     protected override void OnPaintBackground(PaintEventArgs e) =>
-        e.Graphics.Clear(Theme.Base);
+        e.Graphics.Clear(DesignTime.IsActive(this) ? BackColor : Theme.Base);
 }

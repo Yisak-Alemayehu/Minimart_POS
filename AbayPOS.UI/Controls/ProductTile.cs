@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using AbayPOS.Domain.Entities;
 using AbayPOS.UI.Imaging;
@@ -6,11 +7,27 @@ using AbayPOS.UI.Theming;
 namespace AbayPOS.UI.Controls;
 
 /// <summary>Product card used on the cashier grid. Out-of-stock tiles are dimmed and inert.</summary>
-public sealed class ProductTile : UserControl
+[ToolboxItem(true)]
+[Category("AbayPOS")]
+[Description("Product tile for the cashier grid.")]
+public partial class ProductTile : UserControl
 {
+    private static Product SampleProduct => new()
+    {
+        Name = "Milk 1L",
+        Price = 85m,
+        StockQty = 12,
+        Emoji = "🥛",
+        Category = "Dairy",
+        Barcode = "000000"
+    };
+
     private bool _hovered;
     private bool _pressed;
     private readonly ToolTip _tip = new();
+    private Product _product = SampleProduct;
+
+    public ProductTile() : this(SampleProduct) { }
 
     public ProductTile(Product product)
     {
@@ -27,7 +44,23 @@ public sealed class ProductTile : UserControl
         TabStop = !product.IsOutOfStock;
     }
 
-    public Product Product { get; }
+    [Browsable(false)]
+    public Product Product
+    {
+        get => _product;
+        set
+        {
+            _product = value;
+            Cursor = value.IsOutOfStock ? Cursors.No : Cursors.Hand;
+            Enabled = !value.IsOutOfStock;
+            TabStop = !value.IsOutOfStock;
+            AccessibleName = $"{value.Name}, {AbayPOS.Domain.Money.Format(value.Price)}";
+            _tip.SetToolTip(this, value.Name);
+            Invalidate();
+        }
+    }
+
+    public void Bind(Product product) => Product = product;
 
     public void SyncStock()
     {
@@ -74,9 +107,7 @@ public sealed class ProductTile : UserControl
         Invalidate();
     }
 
-    protected override void OnPaintBackground(PaintEventArgs e)
-    {
-    }
+    protected override void OnPaintBackground(PaintEventArgs e) { }
 
     protected override void OnPaint(PaintEventArgs e)
     {
@@ -99,7 +130,7 @@ public sealed class ProductTile : UserControl
         var imageHeight = Math.Max(Theme.Scale(48), (int)(Height * 0.60f));
         var imageBounds = new Rectangle(Theme.Scale(1), Theme.Scale(1), Math.Max(1, Width - Theme.Scale(2)), imageHeight);
         var photo = string.IsNullOrWhiteSpace(Product.ImagePath) ? null : ThumbnailCache.Shared.Get(Product.ImagePath, imageBounds.Height);
-        if (photo is null && !string.IsNullOrWhiteSpace(Product.ImagePath))
+        if (photo is null && !string.IsNullOrWhiteSpace(Product.ImagePath) && !DesignTime.IsActive(this))
             ThumbnailCache.Shared.Request(this, Product.ImagePath, imageBounds.Height, Invalidate);
         using (var clip = Gfx.Round(new RectangleF(1, 1, Width - 3, imageHeight + Theme.PanelRadius), Theme.PanelRadius))
         {
@@ -140,7 +171,6 @@ public sealed class ProductTile : UserControl
         var rect = new RectangleF(Width - size.Width - Theme.Scale(18), Theme.Scale(8), size.Width + Theme.Scale(10), Theme.Scale(18));
         using var path = Gfx.Round(rect, Theme.ChipRadius);
         var fill = Theme.Brush(color);
-        var brush = Theme.Brush(Color.White);
         g.FillPath(fill, path);
         TextKit.DrawCenter(g, text, font, Rectangle.Round(rect), Color.White);
     }
