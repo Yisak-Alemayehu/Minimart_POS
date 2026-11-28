@@ -4,52 +4,31 @@ using AbayPOS.UI.Theming;
 namespace AbayPOS.UI.Dialogs;
 
 /// <summary>F4 discount: amount in ETB or percent.</summary>
-public sealed class DiscountDialog : DialogForm
+public sealed partial class DiscountDialog : DialogForm
 {
-    private readonly NumericUpDown _value;
-    private readonly CheckBox _percent;
-
-    public DiscountDialog(decimal current, bool isPercent)
+    public DiscountDialog()
     {
-        Text = "AbayPOS – Discount";
-        ClientSize = new Size(380, 240);
-        BackColor = Theme.Base;
-        var surface = new GlassPanel { Dock = DockStyle.Fill, Padding = new Padding(24) };
-        var grid = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 4, BackColor = Theme.Base };
-        grid.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        grid.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        grid.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        grid.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        grid.Controls.Add(new Label { Text = "Discount", Font = Theme.FontHeading(), ForeColor = Theme.Text, Dock = DockStyle.Fill }, 0, 0);
-        _value = new NumericUpDown
-        {
-            Dock = DockStyle.Fill,
-            DecimalPlaces = 2,
-            ThousandsSeparator = true,
-            Maximum = 10_000_000,
-            Value = Math.Clamp(current, 0, 100000),
-            BackColor = Theme.InputFill,
-            ForeColor = Theme.Text,
-            Font = Theme.Font(16)
-        };
-        grid.Controls.Add(_value, 0, 1);
-        _percent = new CheckBox { Text = "Percent (%)  —  cashiers max 10%", ForeColor = Theme.Text, Dock = DockStyle.Fill, Checked = isPercent };
-        grid.Controls.Add(_percent, 0, 2);
-        var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft, BackColor = Theme.Base };
-        var ok = new RoundButton { Text = "Apply  F4", Width = 130, Height = 44, IsPrimary = true };
-        ok.Click += (_, _) => { DialogResult = DialogResult.OK; Close(); };
-        var cancel = new RoundButton { Text = "Cancel", Width = 110, Height = 44, FillColor = Theme.CancelGlass, BorderColor = Theme.GlassBorder };
-        cancel.Click += (_, _) => { DialogResult = DialogResult.Cancel; Close(); };
-        buttons.Controls.Add(ok);
-        buttons.Controls.Add(cancel);
-        grid.Controls.Add(buttons, 0, 3);
-        surface.Controls.Add(grid);
-        Controls.Add(surface);
-        Surface.Adopt(this, Theme.Base);
-        AcceptButton = ok;
-        CancelButton = cancel;
+        InitializeComponent();
+        btnApply.Click += (_, _) => { DialogResult = DialogResult.OK; Close(); };
+        btnCancel.Click += (_, _) => { DialogResult = DialogResult.Cancel; Close(); };
+        AcceptButton = btnApply;
+        CancelButton = btnCancel;
     }
 
-    public decimal DiscountValue => _value.Value;
-    public bool IsPercent => _percent.Checked;
+    public DiscountDialog(decimal current, bool isPercent) : this()
+    {
+        numValue.Value = Math.Clamp(current, 0, 100000);
+        chkPercent.Checked = isPercent;
+    }
+
+    public decimal DiscountValue => numValue.Value;
+    public bool IsPercent => chkPercent.Checked;
+
+    protected override void OnLoad(EventArgs e)
+    {
+        base.OnLoad(e);
+        if (DesignTime.IsActive(this))
+            return;
+        Theme.ApplyRuntime(this);
+    }
 }
