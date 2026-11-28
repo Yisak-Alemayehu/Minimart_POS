@@ -6,20 +6,16 @@ namespace AbayPOS.UI.Theming;
 /// <summary>True while Visual Studio is creating or painting a control in the Designer.</summary>
 public static class DesignTime
 {
-    public static bool IsActive
+    public static bool IsActive(Control? control = null)
     {
-        get
-        {
-            if (LicenseManager.UsageMode == LicenseUsageMode.Designtime)
-                return true;
-            var name = Process.GetCurrentProcess().ProcessName;
-            return name is "devenv" or "DesignToolsServer" or "XDesProc";
-        }
-    }
+        if (LicenseManager.UsageMode == LicenseUsageMode.Designtime)
+            return true;
+        if (control is not null
+            && (control.Site?.DesignMode == true
+                || control.FindForm()?.Site?.DesignMode == true))
+            return true;
 
-    public static bool IsActive(Control control) =>
-        IsActive
-        || control.Site?.DesignMode == true
-        || control.DesignMode
-        || (control.FindForm()?.Site?.DesignMode == true);
+        var name = Process.GetCurrentProcess().ProcessName;
+        return name is "devenv" or "DesignToolsServer" or "XDesProc";
+    }
 }
