@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using AbayPOS.Domain.Reporting;
 using AbayPOS.UI.Theming;
@@ -20,7 +21,7 @@ public sealed class BarChart : Control
         SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
         BackColor = Theme.Card;
         AccessibleName = "Sales chart";
-        if (DesignTime.IsActive)
+        if (DesignTime.IsActive())
         {
             var today = DateTime.Today;
             SetPoints(Enumerable.Range(0, 7)
