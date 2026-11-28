@@ -38,7 +38,7 @@ public sealed class CartList : Control
         _scroll.LargeChange = Theme.Scale(64) * 3;
         _scroll.Scroll += (_, _) => Invalidate();
         Controls.Add(_scroll);
-        if (DesignTime.IsActive)
+        if (DesignTime.IsActive())
         {
             SetLines(
             [

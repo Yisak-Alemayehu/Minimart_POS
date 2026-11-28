@@ -180,18 +180,18 @@ partial class UserEditDialog
         PerformLayout();
     }
 
-    private GlassPanel pnlSurface;
-    private TableLayoutPanel tbl;
-    private Label lblUsernameCaption;
-    private GlassTextBox txtUsername;
-    private Label lblFullNameCaption;
-    private GlassTextBox txtFullName;
-    private Label lblRoleCaption;
-    private ComboBox cmbRole;
-    private Label lblPasswordCaption;
-    private GlassTextBox txtPassword;
-    private Label lblError;
-    private FlowLayoutPanel flpButtons;
-    private RoundButton btnSave;
-    private RoundButton btnCancel;
+    private GlassPanel pnlSurface = null!;
+    private TableLayoutPanel tbl = null!;
+    private Label lblUsernameCaption = null!;
+    private GlassTextBox txtUsername = null!;
+    private Label lblFullNameCaption = null!;
+    private GlassTextBox txtFullName = null!;
+    private Label lblRoleCaption = null!;
+    private ComboBox cmbRole = null!;
+    private Label lblPasswordCaption = null!;
+    private GlassTextBox txtPassword = null!;
+    private Label lblError = null!;
+    private FlowLayoutPanel flpButtons = null!;
+    private RoundButton btnSave = null!;
+    private RoundButton btnCancel = null!;
 }

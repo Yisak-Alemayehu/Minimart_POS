@@ -116,12 +116,12 @@ partial class DiscountDialog
         ResumeLayout(false);
     }
 
-    private GlassPanel pnlSurface;
-    private TableLayoutPanel tbl;
-    private Label lblTitle;
-    private NumericUpDown numValue;
-    private CheckBox chkPercent;
-    private FlowLayoutPanel flpButtons;
-    private RoundButton btnApply;
-    private RoundButton btnCancel;
+    private GlassPanel pnlSurface = null!;
+    private TableLayoutPanel tbl = null!;
+    private Label lblTitle = null!;
+    private NumericUpDown numValue = null!;
+    private CheckBox chkPercent = null!;
+    private FlowLayoutPanel flpButtons = null!;
+    private RoundButton btnApply = null!;
+    private RoundButton btnCancel = null!;
 }

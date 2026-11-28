@@ -7,7 +7,7 @@ public class ThemedForm : AppForm
     {
         StartPosition = FormStartPosition.CenterScreen;
         KeyPreview = true;
-        if (DesignTime.IsActive)
+        if (DesignTime.IsActive())
         {
             BackColor = Color.FromArgb(0x0D, 0x0B, 0x14);
             ForeColor = Color.FromArgb(0xF5, 0xF5, 0xF7);
@@ -24,7 +24,7 @@ public class ThemedForm : AppForm
     protected override void OnHandleCreated(EventArgs e)
     {
         base.OnHandleCreated(e);
-        if (!DesignTime.IsActive)
+        if (!DesignTime.IsActive(this))
             WindowStyler.Apply(this);
     }
 

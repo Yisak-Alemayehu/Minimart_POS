@@ -45,6 +45,7 @@ public partial class ProductTile : UserControl
     }
 
     [Browsable(false)]
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public Product Product
     {
         get => _product;

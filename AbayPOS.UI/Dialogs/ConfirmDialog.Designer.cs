@@ -101,11 +101,11 @@ partial class ConfirmDialog
         ResumeLayout(false);
     }
 
-    private GlassPanel pnlSurface;
-    private TableLayoutPanel tbl;
-    private Label lblTitle;
-    private Label lblMessage;
-    private FlowLayoutPanel flpButtons;
-    private RoundButton btnConfirm;
-    private RoundButton btnKeep;
+    private GlassPanel pnlSurface = null!;
+    private TableLayoutPanel tbl = null!;
+    private Label lblTitle = null!;
+    private Label lblMessage = null!;
+    private FlowLayoutPanel flpButtons = null!;
+    private RoundButton btnConfirm = null!;
+    private RoundButton btnKeep = null!;
 }

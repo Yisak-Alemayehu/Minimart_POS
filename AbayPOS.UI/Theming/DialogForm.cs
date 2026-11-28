@@ -15,7 +15,7 @@ public class DialogForm : Form
         KeyPreview = true;
         AutoScroll = true;
 
-        if (DesignTime.IsActive)
+        if (DesignTime.IsActive())
         {
             BackColor = Color.FromArgb(0x0D, 0x0B, 0x14);
             ForeColor = Color.FromArgb(0xF5, 0xF5, 0xF7);
@@ -32,7 +32,7 @@ public class DialogForm : Form
     protected override void OnHandleCreated(EventArgs e)
     {
         base.OnHandleCreated(e);
-        if (DesignTime.IsActive)
+        if (DesignTime.IsActive())
             return;
         Theme.UseDpi(DeviceDpi);
         WindowStyler.Apply(this);

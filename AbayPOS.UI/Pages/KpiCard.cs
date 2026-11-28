@@ -4,7 +4,10 @@ using AbayPOS.UI.Theming;
 
 namespace AbayPOS.UI.Pages;
 
-internal sealed partial class KpiCard : GlassPanel
+[ToolboxItem(true)]
+[Category("AbayPOS")]
+[Description("Dashboard KPI card with title and value.")]
+public sealed partial class KpiCard : GlassPanel
 {
     private ToolTip _titleTip = new();
 

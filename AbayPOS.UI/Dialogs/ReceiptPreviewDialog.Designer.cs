@@ -87,10 +87,10 @@ partial class ReceiptPreviewDialog
         ResumeLayout(false);
     }
 
-    private GlassPanel pnlSurface;
-    private TableLayoutPanel tbl;
-    private PrintPreviewControl previewReceipt;
-    private FlowLayoutPanel flpButtons;
-    private RoundButton btnPrint;
-    private RoundButton btnSkip;
+    private GlassPanel pnlSurface = null!;
+    private TableLayoutPanel tbl = null!;
+    private PrintPreviewControl previewReceipt = null!;
+    private FlowLayoutPanel flpButtons = null!;
+    private RoundButton btnPrint = null!;
+    private RoundButton btnSkip = null!;
 }

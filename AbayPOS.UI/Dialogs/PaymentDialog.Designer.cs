@@ -186,18 +186,18 @@ partial class PaymentDialog
         ResumeLayout(false);
     }
 
-    private GlassPanel pnlSurface;
-    private TableLayoutPanel tbl;
-    private Label lblTitle;
-    private FittedText txtDue;
-    private FlowLayoutPanel flpTabs;
-    private RoundButton btnCashTab;
-    private RoundButton btnMobileTab;
-    private NumericUpDown numAmount;
-    private FlowLayoutPanel flpQuick;
-    private Label lblChangeCaption;
-    private Label lblChange;
-    private FlowLayoutPanel flpButtons;
-    private RoundButton btnPay;
-    private RoundButton btnBack;
+    private GlassPanel pnlSurface = null!;
+    private TableLayoutPanel tbl = null!;
+    private Label lblTitle = null!;
+    private FittedText txtDue = null!;
+    private FlowLayoutPanel flpTabs = null!;
+    private RoundButton btnCashTab = null!;
+    private RoundButton btnMobileTab = null!;
+    private NumericUpDown numAmount = null!;
+    private FlowLayoutPanel flpQuick = null!;
+    private Label lblChangeCaption = null!;
+    private Label lblChange = null!;
+    private FlowLayoutPanel flpButtons = null!;
+    private RoundButton btnPay = null!;
+    private RoundButton btnBack = null!;
 }

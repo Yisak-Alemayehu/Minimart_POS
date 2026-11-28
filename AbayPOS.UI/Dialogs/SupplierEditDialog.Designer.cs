@@ -187,19 +187,19 @@ partial class SupplierEditDialog
         PerformLayout();
     }
 
-    private GlassPanel pnlSurface;
-    private TableLayoutPanel tbl;
-    private Label lblNameCaption;
-    private GlassTextBox txtName;
-    private Label lblPhoneCaption;
-    private GlassTextBox txtPhone;
-    private Label lblEmailCaption;
-    private GlassTextBox txtEmail;
-    private Label lblAddressCaption;
-    private GlassTextBox txtAddress;
-    private CheckBox chkActive;
-    private Label lblError;
-    private FlowLayoutPanel flpButtons;
-    private RoundButton btnSave;
-    private RoundButton btnCancel;
+    private GlassPanel pnlSurface = null!;
+    private TableLayoutPanel tbl = null!;
+    private Label lblNameCaption = null!;
+    private GlassTextBox txtName = null!;
+    private Label lblPhoneCaption = null!;
+    private GlassTextBox txtPhone = null!;
+    private Label lblEmailCaption = null!;
+    private GlassTextBox txtEmail = null!;
+    private Label lblAddressCaption = null!;
+    private GlassTextBox txtAddress = null!;
+    private CheckBox chkActive = null!;
+    private Label lblError = null!;
+    private FlowLayoutPanel flpButtons = null!;
+    private RoundButton btnSave = null!;
+    private RoundButton btnCancel = null!;
 }
