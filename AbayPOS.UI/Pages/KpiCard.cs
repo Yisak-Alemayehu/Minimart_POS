@@ -28,9 +28,9 @@ internal sealed partial class KpiCard : GlassPanel
 
     public void SetValue(string value) => txtValue.SetValue(value);
 
-    protected override void OnLoad(EventArgs e)
+    protected override void OnHandleCreated(EventArgs e)
     {
-        base.OnLoad(e);
+        base.OnHandleCreated(e);
         if (DesignTime.IsActive(this))
             return;
         Theme.ApplyRuntime(this);

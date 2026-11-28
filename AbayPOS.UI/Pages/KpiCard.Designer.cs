@@ -58,7 +58,7 @@ partial class KpiCard
         PerformLayout();
     }
 
-    private TableLayoutPanel tbl;
-    private Label lblTitle;
-    private FittedText txtValue;
+    private TableLayoutPanel tbl = null!;
+    private Label lblTitle = null!;
+    private FittedText txtValue = null!;
 }
